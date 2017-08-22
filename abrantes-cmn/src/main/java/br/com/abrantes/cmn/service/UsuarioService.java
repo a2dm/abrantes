@@ -179,7 +179,7 @@ public class UsuarioService extends A2DMHbNgc<Usuario>
 	{
 		Email email = new Email();
 		
-		String assunto = "Acesso Speciale - Sistema de Pedido";
+		String assunto = "Acesso Abrantes - Sistema de Advocacia";
 		String texto = "Nome: "+ vo.getNome() +" \n" +
 				   "Login: "+ vo.getLogin() +" \n" +
 				   "Senha: "+ senha;

@@ -13,12 +13,12 @@ import javax.mail.internet.MimeMessage;
 
 public class Email
 {
-	private static final String USER  = "contato@abrantes.com";
-	private static final String PASSWORD  = "@Socio2016";
+	private static final String USER  = "contato@a2dm.com.br";
+	private static final String PASSWORD  = "socio2017empresa";
 	
 	public void enviar(String to, String assunto, String texto) throws AddressException, MessagingException 
 	{
-		String host = "smtp.specialepanificacoes.com";
+		String host = "smtp.a2dm.com.br";
 		
 		Properties props = new Properties();
 		props.put("mail.smtp.host", host);

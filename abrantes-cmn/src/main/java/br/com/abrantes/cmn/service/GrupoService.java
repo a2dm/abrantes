@@ -1,5 +1,6 @@
 package br.com.abrantes.cmn.service;
 
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +28,7 @@ public class GrupoService extends A2DMHbNgc<Grupo>
 	public static final int GRUPO_ADMINISTRADOR = 1;
 	public static final int GRUPO_PROFISSIONAL = 2;
 	public static final int GRUPO_RECEPCIONISTA = 3;
+	public static final BigInteger GRUPO_CLIENTE = new BigInteger("10");
 	
 	public static final Integer[] gruposAcesso = {GRUPO_ADMINISTRADOR, GRUPO_PROFISSIONAL, GRUPO_RECEPCIONISTA};
 	

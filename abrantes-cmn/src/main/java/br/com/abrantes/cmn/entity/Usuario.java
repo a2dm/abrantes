@@ -92,7 +92,7 @@ public class Usuario implements Serializable
 	private String logradouro;
 	
 	@Column(name = "num_endereco")
-	private BigInteger numEndereco;
+	private String numEndereco;
 	
 	@Column(name = "bairro")
 	private String bairro;
@@ -122,6 +122,15 @@ public class Usuario implements Serializable
 	
 	@Column(name = "flg_seguranca")
 	private String flgSeguranca;
+	
+	@Column(name = "oab")
+	private String oab;
+	
+	@Column(name = "cargo")
+	private String cargo;
+	
+	@Column(name = "id_cliente")
+	private BigInteger idCliente;
 		
 	@Transient
 	private BigInteger[] arrayPermissoes;
@@ -255,11 +264,11 @@ public class Usuario implements Serializable
 		this.logradouro = logradouro;
 	}
 
-	public BigInteger getNumEndereco() {
+	public String getNumEndereco() {
 		return numEndereco;
 	}
 
-	public void setNumEndereco(BigInteger numEndereco) {
+	public void setNumEndereco(String numEndereco) {
 		this.numEndereco = numEndereco;
 	}
 
@@ -381,5 +390,29 @@ public class Usuario implements Serializable
 
 	public void setNovaSenha(String novaSenha) {
 		this.novaSenha = novaSenha;
+	}
+
+	public BigInteger getIdCliente() {
+		return idCliente;
+	}
+
+	public void setIdCliente(BigInteger idCliente) {
+		this.idCliente = idCliente;
+	}
+
+	public String getOab() {
+		return oab;
+	}
+
+	public void setOab(String oab) {
+		this.oab = oab;
+	}
+
+	public String getCargo() {
+		return cargo;
+	}
+
+	public void setCargo(String cargo) {
+		this.cargo = cargo;
 	}
 }

@@ -22,4 +22,18 @@ public class MenuControl
 		
 		util.getSession().setAttribute(desMenu, "active");
 	}
+	
+	public static void ativarSubMenu(String desSubMenu)
+	{
+		util.getSession().removeAttribute("flgMenuRelPed");
+		util.getSession().removeAttribute("flgMenuRelLog");
+		util.getSession().removeAttribute("flgMenuRelObs");
+		util.getSession().removeAttribute("flgMenuManUsr");
+		util.getSession().removeAttribute("flgMenuManCli");
+		util.getSession().removeAttribute("flgMenuManRec");
+		util.getSession().removeAttribute("flgMenuManPrd");
+		util.getSession().removeAttribute("flgMenuMsgAgn");
+		
+		util.getSession().setAttribute(desSubMenu, "active");
+	}
 }

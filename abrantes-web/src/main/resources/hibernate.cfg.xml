@@ -11,12 +11,13 @@
 		<property name="connection.password">postgres</property>
 		<property name="hibernate.connection.pool_size">25</property>
 		<property name="hibernate.format_sql">true</property>
-		<property name="hibernate.default_schema">agn</property>
+		<property name="hibernate.default_schema">seg</property>
 		<property name="connection.pool_size">1</property>
 		<property name="dialect">org.hibernate.dialect.PostgreSQLDialect</property>
 		<property name="show_sql">true</property>
 		
 		<mapping class="br.com.abrantes.cmn.entity.Usuario"/>
+		<mapping class="br.com.abrantes.cmn.entity.Cliente"/>
 		<mapping class="br.com.abrantes.cmn.entity.log.UsuarioLog"/>
 		<mapping class="br.com.abrantes.cmn.entity.Grupo"/>
 		<mapping class="br.com.abrantes.cmn.entity.log.GrupoLog"/>
@@ -27,5 +28,7 @@
 		<mapping class="br.com.abrantes.cmn.entity.Sistema"/>
 		<mapping class="br.com.abrantes.cmn.entity.Acao"/>
 		<mapping class="br.com.abrantes.cmn.entity.Estado"/>
+		<mapping class="br.com.abrantes.cmn.entity.RecuperarSenha"/>
+		<mapping class="br.com.abrantes.cmn.entity.Parametro"/>
 	</session-factory>
 </hibernate-configuration>

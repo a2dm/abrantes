@@ -100,7 +100,7 @@ public class RecuperarSenhaService extends A2DMHbNgc<RecuperarSenha>
 			sessao.save(objInsert);
 			sessao.flush();
 			
-			String hash = objInsert.getIdUsuario().intValue() + "SPECIALE"+objInsert.getDatCadastro().getTime();
+			String hash = objInsert.getIdUsuario().intValue() + "ABRANTES"+objInsert.getDatCadastro().getTime();
 			objInsert.setHash(CriptoMD5.stringHexa(hash));
 			
 			sessao.merge(objInsert);
@@ -148,8 +148,8 @@ public class RecuperarSenhaService extends A2DMHbNgc<RecuperarSenha>
 		
 		Email email = new Email();
 
-		String assunto = "Speciale - Recuperar Senha";
-		String texto = "Prezado (a): "+ vo.getNome() +", Você acabou de solicitar a recuperação de senha do sistema da Speciale. \n\n\n" +
+		String assunto = "Abrantes - Recuperar Senha";
+		String texto = "Prezado (a): "+ vo.getNome() +", Você acabou de solicitar a recuperação de senha do sistema da Abrantes. \n\n\n" +
 				       "Para proceder, por favor clique no link abaixo: \n\n" +
 				       "" +	parametro.getValor() + "pages/recuperarSenha.jsf?b=" + hash;
 		

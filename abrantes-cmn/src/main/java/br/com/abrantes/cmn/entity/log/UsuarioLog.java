@@ -24,7 +24,7 @@ import org.hibernate.annotations.Proxy;
  */
 
 @Entity
-@Table(name = "tb_usuario_log", schema="ped")
+@Table(name = "tb_usuario_log", schema="seg")
 @SequenceGenerator(name = "SQ_USUARIO_LOG", sequenceName = "SQ_USUARIO_LOG", allocationSize = 1)
 @Proxy(lazy = true)
 public class UsuarioLog implements Serializable
@@ -78,15 +78,6 @@ public class UsuarioLog implements Serializable
 	@Column(name = "flg_ativo")
 	private String flgAtivo;
 	
-	@Column(name = "id_especialidade")
-	private BigInteger idEspecialidade;
-	
-	@Column(name = "id_conselho")
-	private BigInteger idConselho;
-	
-	@Column(name = "num_conselho")
-	private BigInteger numConselho;
-	
 	@Column(name = "cep")
 	private String cep;
 
@@ -94,7 +85,7 @@ public class UsuarioLog implements Serializable
 	private String logradouro;
 	
 	@Column(name = "num_endereco")
-	private BigInteger numEndereco;
+	private String numEndereco;
 	
 	@Column(name = "bairro")
 	private String bairro;
@@ -231,30 +222,6 @@ public class UsuarioLog implements Serializable
 		this.flgAtivo = flgAtivo;
 	}
 
-	public BigInteger getIdEspecialidade() {
-		return idEspecialidade;
-	}
-
-	public void setIdEspecialidade(BigInteger idEspecialidade) {
-		this.idEspecialidade = idEspecialidade;
-	}
-
-	public BigInteger getIdConselho() {
-		return idConselho;
-	}
-
-	public void setIdConselho(BigInteger idConselho) {
-		this.idConselho = idConselho;
-	}
-
-	public BigInteger getNumConselho() {
-		return numConselho;
-	}
-
-	public void setNumConselho(BigInteger numConselho) {
-		this.numConselho = numConselho;
-	}
-
 	public String getCep() {
 		return cep;
 	}
@@ -271,11 +238,11 @@ public class UsuarioLog implements Serializable
 		this.logradouro = logradouro;
 	}
 
-	public BigInteger getNumEndereco() {
+	public String getNumEndereco() {
 		return numEndereco;
 	}
 
-	public void setNumEndereco(BigInteger numEndereco) {
+	public void setNumEndereco(String numEndereco) {
 		this.numEndereco = numEndereco;
 	}
 
