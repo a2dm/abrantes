@@ -145,6 +145,11 @@ public class UsuarioBean extends AbstractBean<Usuario, UsuarioService>
 			throw new Exception("O campo Nome é obrigatório.");
 		}
 		
+		if(this.getEntity().getSobrenome() == null || this.getEntity().getSobrenome().trim().equals(""))
+		{
+			throw new Exception("O campo Sobrenome é obrigatório.");
+		}
+		
 		if(this.getEntity().getEmail() == null || this.getEntity().getEmail().trim().equals(""))
 		{
 			throw new Exception("O campo E-mail é obrigatório.");
@@ -160,9 +165,24 @@ public class UsuarioBean extends AbstractBean<Usuario, UsuarioService>
 			throw new Exception("O campo CPF é obrigatório.");
 		}
 		
+		if(this.getEntity().getTelefoneDDD() == null)
+		{
+			throw new Exception("O campo DDD do Telefone é obrigatório.");
+		}
+		
 		if(this.getEntity().getTelefone() == null || this.getEntity().getTelefone().trim().equals(""))
 		{
 			throw new Exception("O campo Telefone é obrigatório.");
+		}
+		
+		if(this.getEntity().getCelularDDD() == null)
+		{
+			throw new Exception("O campo DDD do Celular é obrigatório.");
+		}
+		
+		if(this.getEntity().getCelular() == null || this.getEntity().getCelular().trim().equals(""))
+		{
+			throw new Exception("O campo Celular é obrigatório.");
 		}
 		
 		if(this.getEntity().getCep() == null || this.getEntity().getCep().trim().equals(""))
@@ -208,7 +228,7 @@ public class UsuarioBean extends AbstractBean<Usuario, UsuarioService>
 			}
 		}
 	}
-
+	
 	@Override
 	protected void completarInserir() throws Exception
 	{

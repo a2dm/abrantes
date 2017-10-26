@@ -117,6 +117,15 @@
 			                     </h:inputText>
 			                   </div>
 		                 	</div>
+		                 	
+		                 	<div class="form-group">
+		                   	   <label for="inputEmail3" class="col-sm-2 control-label">Sobrenome *</label>
+			                   <div class="col-sm-6">
+			                     <h:inputText value="#{crudBean.entity.sobrenome}" styleClass="form-control" size="100" maxlength="250" id="sobrenome">
+				                     <f:passThroughAttribute name="placeholder" value="Sobrenome do Usuário"/>
+			                     </h:inputText>
+			                   </div>
+		                 	</div>
 		                 </div>
 		                 
 		                 <h:panelGroup id="panelGroupDeInserir" style="height:100%;width:100%;" rendered="#{crudBean.inserting}">
@@ -142,8 +151,8 @@
 			                 	<div class="form-group">
 			                   	   <label for="inputEmail3" class="col-sm-2 control-label">CPF *</label>
 				                   <div class="col-sm-2">
-				                     <h:inputText value="#{crudBean.entity.cpf}" styleClass="form-control" size="100" maxlength="14" onkeypress="javascript: mascara(this, cpf_mask);" id="cpf">
-					                     <f:passThroughAttribute name="placeholder" value="Cpf do Usuário"/>
+				                     <h:inputText value="#{crudBean.entity.cpf}" styleClass="form-control" size="100" maxlength="14" onblur="validarCPF(this);" onkeypress="javascript: mascara(this, cpf_mask);" id="cpf">
+					                     <f:passThroughAttribute name="placeholder" value="CPF do Usuário"/>
 				                     </h:inputText>
 				                   </div>
 			                 	</div>
@@ -171,11 +180,30 @@
 		                 <div class="box-body" style="padding: 1px;">	
 		                 	<div class="form-group">
 		                   	   <label for="inputEmail3" class="col-sm-2 control-label">Telefone *</label>
-			                   <div class="col-sm-2" >
-			                     <h:inputText value="#{crudBean.entity.telefone}" styleClass="form-control" onkeypress="javascript: mascara(this, mtel);" maxlength="15">
+			                   <div class="col-sm-1">
+			                   	 <h:inputText value="#{crudBean.entity.telefoneDDD}" styleClass="form-control" maxlength="2">
+				                     <f:passThroughAttribute name="placeholder" value="DDD"/>
+			                     </h:inputText>
+			                   </div>
+			                   <div class="col-sm-2">
+			                     <h:inputText value="#{crudBean.entity.telefone}" styleClass="form-control" onkeypress="javascript: mascara(this, mtel);" maxlength="9">
 				                     <f:passThroughAttribute name="placeholder" value="Telefone do Usuário"/>
 			                     </h:inputText>
 			                   </div>
+		                 	</div>
+		                 	
+		                 	<div class="form-group">
+		                   	   <label for="inputEmail3" class="col-sm-2 control-label">Celular *</label>
+			                   <div class="col-sm-1" >
+			                   	 <h:inputText value="#{crudBean.entity.celularDDD}" styleClass="form-control" maxlength="2">
+				                     <f:passThroughAttribute name="placeholder" value="DDD"/>
+			                     </h:inputText>
+			                   </div>
+			                   <div class="col-sm-2" >
+			                     <h:inputText value="#{crudBean.entity.celular}" styleClass="form-control" onkeypress="javascript: mascara(this, mtel);" maxlength="10">
+				                     <f:passThroughAttribute name="placeholder" value="Celular do Usuário"/>
+			                     </h:inputText>
+			                     </div>
 		                 	</div>
 		                 	
 		                 	<div class="form-group">
@@ -185,6 +213,17 @@
 			                   </div>
 		                 	</div>
 		                 	
+		                 	<div class="form-group">
+		                   	   <label for="inputEmail3" class="col-sm-2 control-label">Sexo</label>
+		                   	   <div class="col-sm-6">
+                       		   		<div style="width: 300px;" class="radio">
+					                   <h:selectOneRadio value="#{crudBean.entity.flgSexo}" style="width: 100%;" >
+											<f:selectItem itemValue="M" itemLabel="Masculino" />
+											<f:selectItem itemValue="F" itemLabel="Feminino" />
+									   </h:selectOneRadio>
+							   		</div>
+							   </div>
+		                 	</div>
 		                </div>
 	                </rich:tab>
 	                	                	                
@@ -305,5 +344,4 @@
 			<ui:include src="panelVisualizarUsuario.xhtml" />
 		</rich:popupPanel>
 	</ui:define>
-			
 </ui:composition>

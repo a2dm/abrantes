@@ -6,9 +6,9 @@
 <hibernate-configuration>
 	<session-factory>
 		<property name="connection.driver_class">org.postgresql.Driver</property>
-		<property name="connection.url">jdbc:postgresql://localhost:5432/abrantes</property>
-		<property name="connection.username">postgres</property>
-		<property name="connection.password">postgres</property>
+		<property name="connection.url">jdbc:postgresql://93.188.165.38:5432/abrantedb</property>
+		<property name="connection.username">abrantes</property>
+		<property name="connection.password">@Socio2017</property>
 		<property name="hibernate.connection.pool_size">25</property>
 		<property name="hibernate.format_sql">true</property>
 		<property name="hibernate.default_schema">seg</property>
@@ -30,5 +30,11 @@
 		<mapping class="br.com.abrantes.cmn.entity.Estado"/>
 		<mapping class="br.com.abrantes.cmn.entity.RecuperarSenha"/>
 		<mapping class="br.com.abrantes.cmn.entity.Parametro"/>
+		<mapping class="br.com.abrantes.cmn.entity.Audiencia"/>
+		<mapping class="br.com.abrantes.cmn.entity.Diligencia"/>
+		<mapping class="br.com.abrantes.cmn.entity.TpAudiencia"/>
+		<mapping class="br.com.abrantes.cmn.entity.TpDiligencia"/>
+		<mapping class="br.com.abrantes.cmn.entity.TpContratacao"/>
+		<mapping class="br.com.abrantes.cmn.entity.OrigemProcesso"/>
 	</session-factory>
 </hibernate-configuration>

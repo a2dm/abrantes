@@ -102,9 +102,24 @@ public class ClienteBean extends AbstractBean<Cliente, ClienteService>
 			throw new Exception("O campo CNPJ é obrigatório.");
 		}
 		
+		if(this.getEntity().getTelefoneDDD() == null)
+		{
+			throw new Exception("O campo DDD do Telefone é obrigatório.");
+		}
+		
 		if(this.getEntity().getTelefone() == null || this.getEntity().getTelefone().trim().equals(""))
 		{
 			throw new Exception("O campo Telefone é obrigatório.");
+		}
+		
+		if(this.getEntity().getCelularDDD() == null)
+		{
+			throw new Exception("O campo DDD do Celular é obrigatório.");
+		}
+		
+		if(this.getEntity().getCelular() == null || this.getEntity().getCelular().trim().equals(""))
+		{
+			throw new Exception("O campo Celular é obrigatório.");
 		}
 		
 		if(this.getEntity().getEmail() == null || this.getEntity().getEmail().trim().equals(""))

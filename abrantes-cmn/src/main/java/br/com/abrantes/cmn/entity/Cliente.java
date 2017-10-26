@@ -58,8 +58,17 @@ public class Cliente implements Serializable {
 	@Column(name = "email")
 	private String email;
 
+	@Column(name = "telefone_ddd")
+	private Integer telefoneDDD;
+
+	@Column(name = "celular_ddd")
+	private Integer celularDDD;
+
 	@Column(name = "telefone")
 	private String telefone;
+
+	@Column(name = "celular")
+	private String celular;
 
 	@Column(name = "cep")
 	private String cep;
@@ -308,4 +317,30 @@ public class Cliente implements Serializable {
 	public void setReferencia(String referencia) {
 		this.referencia = referencia;
 	}
+
+	public Integer getTelefoneDDD() {
+		return telefoneDDD;
+	}
+
+	public void setTelefoneDDD(Integer telefoneDDD) {
+		this.telefoneDDD = telefoneDDD;
+	}
+
+	public Integer getCelularDDD() {
+		return celularDDD;
+	}
+
+	public void setCelularDDD(Integer celularDDD) {
+		this.celularDDD = celularDDD;
+	}
+
+	public String getCelular() {
+		return celular;
+	}
+
+	public void setCelular(String celular) {
+		this.celular = celular;
+	}
+	
+	
 }

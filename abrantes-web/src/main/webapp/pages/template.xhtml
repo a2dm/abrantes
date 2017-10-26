@@ -151,6 +151,18 @@
 		                <li class="#{sessionScope.flgMenuManCli}"><h:commandLink action="#{clienteBean.preparaPesquisar}"><i class="fa fa-user-secret"></i> Empresa</h:commandLink></li>
 		              </ul>
 		            </li>
+		            
+		            <li class="treeview #{sessionScope.flgMenuCad}">
+		              <a href="#">
+		                <i class="fa fa-envelope"></i>
+		                <span>Cadastro</span>
+		                <i class="fa fa-angle-left pull-right"></i>
+		              </a>
+		              <ul class="treeview-menu">
+		                <li class="#{sessionScope.flgMenuCadAud}"><h:commandLink action="#{audienciaBean.preparaPesquisar}"><i class="fa fa-calendar-minus-o"></i> Audiência</h:commandLink></li>
+		                <li class="#{sessionScope.flgMenuCadDil}"><h:commandLink action="#{diligenciaBean.preparaPesquisar}"><i class="fa fa-pencil-square-o"></i> Diligência</h:commandLink></li>
+		              </ul>
+		            </li>
 		            </h:panelGroup>
 		            
 		          </ul>
