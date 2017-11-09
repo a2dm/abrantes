@@ -11,21 +11,19 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.sql.JoinType;
 
-import br.com.abrantes.cmn.entity.Audiencia;
+import br.com.abrantes.cmn.entity.ArquivoDiligencia;
 import br.com.abrantes.cmn.util.A2DMHbNgc;
 import br.com.abrantes.cmn.util.HibernateUtil;
 import br.com.abrantes.cmn.util.RestritorHb;
 import br.com.abrantes.cmn.util.jsf.JSFUtil;
 
-public class AudienciaService extends A2DMHbNgc<Audiencia>
+public class ArquivoDiligenciaService extends A2DMHbNgc<ArquivoDiligencia>
 {
-	private static AudienciaService instancia = null;
+	private static ArquivoDiligenciaService instancia = null;
 
 	public static final int JOIN_USUARIO_CAD = 1;
 	
 	public static final int JOIN_USUARIO_ALT = 2;
-	
-	public static final int JOIN_ARQUIVO = 4;
 	
 	private JSFUtil util = new JSFUtil();
 		
@@ -35,24 +33,23 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	@SuppressWarnings("rawtypes")
 	private static Map restritores = new HashMap();
 	
-	public static AudienciaService getInstancia()
+	public static ArquivoDiligenciaService getInstancia()
 	{
 		if (instancia == null)
 		{
-			instancia = new AudienciaService();
+			instancia = new ArquivoDiligenciaService();
 		}
 		return instancia;
 	}
 	
-	public AudienciaService()
+	public ArquivoDiligenciaService()
 	{
-		adicionarFiltro("datAudiencia", RestritorHb.RESTRITOR_EQ,"datAudiencia");
-		adicionarFiltro("vara", RestritorHb.RESTRITOR_LIKE, "vara");
-		adicionarFiltro("processo", RestritorHb.RESTRITOR_EQ, "processo");
-		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");		
+		adicionarFiltro("idArquivoDiligencia", RestritorHb.RESTRITOR_EQ, "idArquivoDiligencia");
+		adicionarFiltro("idAudiencia", RestritorHb.RESTRITOR_EQ, "idAudiencia");
+		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");
 	}
 	
-	public Audiencia inativar(Audiencia vo) throws Exception
+	public ArquivoDiligencia inativar(ArquivoDiligencia vo) throws Exception
 	{
 		Session sessao = HibernateUtil.getSession();
 		sessao.setFlushMode(FlushMode.COMMIT);
@@ -75,11 +72,11 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 		}
 	}
 
-	public Audiencia inativar(Session sessao, Audiencia vo) throws Exception
+	public ArquivoDiligencia inativar(Session sessao, ArquivoDiligencia vo) throws Exception
 	{
-		Audiencia audiencia = new Audiencia();
-		audiencia.setIdAudiencia(vo.getIdAudiencia());
-		audiencia = this.get(sessao, audiencia, 0);
+		ArquivoDiligencia arquivoDiligencia = new ArquivoDiligencia();
+		arquivoDiligencia.setIdArquivoDiligencia(vo.getIdArquivoDiligencia());
+		arquivoDiligencia = this.get(sessao, arquivoDiligencia, 0);
 				
 		vo.setFlgAtivo("N");
 		vo.setIdUsuarioAlt(util.getUsuarioLogado().getIdUsuario());
@@ -90,7 +87,7 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 		return vo;
 	}
 	
-	public Audiencia ativar(Audiencia vo) throws Exception
+	public ArquivoDiligencia ativar(ArquivoDiligencia vo) throws Exception
 	{
 		Session sessao = HibernateUtil.getSession();
 		sessao.setFlushMode(FlushMode.COMMIT);
@@ -113,11 +110,11 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 		}
 	}
 	
-	public Audiencia ativar(Session sessao, Audiencia vo) throws Exception
+	public ArquivoDiligencia ativar(Session sessao, ArquivoDiligencia vo) throws Exception
 	{
-		Audiencia audiencia = new Audiencia();
-		audiencia.setIdAudiencia(vo.getIdAudiencia());
-		audiencia = this.get(sessao, audiencia, 0);
+		ArquivoDiligencia arquivoDiligencia = new ArquivoDiligencia();
+		arquivoDiligencia.setIdArquivoDiligencia(vo.getIdArquivoDiligencia());
+		arquivoDiligencia = this.get(sessao, arquivoDiligencia, 0);
 		
 		vo.setFlgAtivo("S");
 		vo.setIdUsuarioAlt(util.getUsuarioLogado().getIdUsuario());
@@ -131,7 +128,7 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	@Override
 	protected Criteria montaCriteria(Session sessao, int join)
 	{
-		Criteria criteria = sessao.createCriteria(Audiencia.class);
+		Criteria criteria = sessao.createCriteria(ArquivoDiligencia.class);
 
 		if ((join & JOIN_USUARIO_CAD) != 0)
 	    {
@@ -143,18 +140,14 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	         criteria.createAlias("usuarioAlt", "usuarioAlt", JoinType.LEFT_OUTER_JOIN);
 	    }
 		
-		if ((join & JOIN_ARQUIVO) != 0)
-	    {
-			criteria.createAlias("listArquivo", "listArquivo", JoinType.LEFT_OUTER_JOIN);
-	    }
-		
 		return criteria;
 	}
 		
 	@Override
-	protected void setarOrdenacao(Criteria criteria, Audiencia vo, int join)
+	protected void setarOrdenacao(Criteria criteria, ArquivoDiligencia vo, int join)
 	{
-		criteria.addOrder(Order.desc("datAudiencia"));
+		criteria.addOrder(Order.desc("tipo"));
+		criteria.addOrder(Order.asc("nome"));
 	}
 
 	@Override

@@ -7,10 +7,11 @@
 				xmlns:f="http://java.sun.com/jsf/core"
 				xmlns:a4j="http://richfaces.org/a4j"
 				xmlns:rich="http://richfaces.org/rich"
+				xmlns:p="http://primefaces.org/ui"
 				xmlns:mj="http://mojarra.dev.java.net/mojarra_ext"
 				xmlns:t="http://myfaces.apache.org/tomahawk"
 				template="crud_template.xhtml">
-			
+	
 	<ui:param name="crudBean" value="#{audienciaBean}" />	
 	
 	<ui:define name="saveStateObjectsDefined">
@@ -211,13 +212,22 @@
 		                 </div>
 	                </rich:tab>
 	                
+	                <rich:tab header="Documentação">
+	                	<a4j:commandButton image="../images/visualizar.png" style="border:none; width: 18px; height: 18px;" title="FILE UPLOAD" render="formulario" oncomplete="#{rich:component('panFileUpload')}.show();"/>
+	                </rich:tab>
                 </rich:tabPanel>
 			</f:subview>
 		</h:panelGroup>			
 	</ui:define>
 	
+	<ui:define name="dialogs">
+		<rich:popupPanel id="panFileUpload" styleClass="modal-content" domElementAttachment="body" modal="true" width="1110" height="580" resizeable="false" onmaskclick="#{rich:component('panFileUpload')}.hide()">
+			<ui:include src="_fileUpload.xhtml" />
+		</rich:popupPanel>
+	</ui:define>
+	
 	<ui:define name="list">	
-		<h:panelGrid id="tblResult" layout="block" style="width: 100%; height: 100%;z" >
+		<h:panelGrid id="tblResult" layout="block" style="width: 100%; height: 100%;" >
 			<f:subview id="viewListagem">
 				<div class="box-content">
 					<rich:dataTable id="tblData" 

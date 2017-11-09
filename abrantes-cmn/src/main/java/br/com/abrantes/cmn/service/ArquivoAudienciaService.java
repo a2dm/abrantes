@@ -11,21 +11,19 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.sql.JoinType;
 
-import br.com.abrantes.cmn.entity.Audiencia;
+import br.com.abrantes.cmn.entity.ArquivoAudiencia;
 import br.com.abrantes.cmn.util.A2DMHbNgc;
 import br.com.abrantes.cmn.util.HibernateUtil;
 import br.com.abrantes.cmn.util.RestritorHb;
 import br.com.abrantes.cmn.util.jsf.JSFUtil;
 
-public class AudienciaService extends A2DMHbNgc<Audiencia>
+public class ArquivoAudienciaService extends A2DMHbNgc<ArquivoAudiencia>
 {
-	private static AudienciaService instancia = null;
+	private static ArquivoAudienciaService instancia = null;
 
 	public static final int JOIN_USUARIO_CAD = 1;
 	
 	public static final int JOIN_USUARIO_ALT = 2;
-	
-	public static final int JOIN_ARQUIVO = 4;
 	
 	private JSFUtil util = new JSFUtil();
 		
@@ -35,24 +33,23 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	@SuppressWarnings("rawtypes")
 	private static Map restritores = new HashMap();
 	
-	public static AudienciaService getInstancia()
+	public static ArquivoAudienciaService getInstancia()
 	{
 		if (instancia == null)
 		{
-			instancia = new AudienciaService();
+			instancia = new ArquivoAudienciaService();
 		}
 		return instancia;
 	}
 	
-	public AudienciaService()
+	public ArquivoAudienciaService()
 	{
-		adicionarFiltro("datAudiencia", RestritorHb.RESTRITOR_EQ,"datAudiencia");
-		adicionarFiltro("vara", RestritorHb.RESTRITOR_LIKE, "vara");
-		adicionarFiltro("processo", RestritorHb.RESTRITOR_EQ, "processo");
-		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");		
+		adicionarFiltro("idArquivoAudiencia", RestritorHb.RESTRITOR_EQ, "idArquivoAudiencia");
+		adicionarFiltro("idAudiencia", RestritorHb.RESTRITOR_EQ, "idAudiencia");
+		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");
 	}
 	
-	public Audiencia inativar(Audiencia vo) throws Exception
+	public ArquivoAudiencia inativar(ArquivoAudiencia vo) throws Exception
 	{
 		Session sessao = HibernateUtil.getSession();
 		sessao.setFlushMode(FlushMode.COMMIT);
@@ -75,11 +72,11 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 		}
 	}
 
-	public Audiencia inativar(Session sessao, Audiencia vo) throws Exception
+	public ArquivoAudiencia inativar(Session sessao, ArquivoAudiencia vo) throws Exception
 	{
-		Audiencia audiencia = new Audiencia();
-		audiencia.setIdAudiencia(vo.getIdAudiencia());
-		audiencia = this.get(sessao, audiencia, 0);
+		ArquivoAudiencia arquivoAudiencia = new ArquivoAudiencia();
+		arquivoAudiencia.setIdArquivoAudiencia(vo.getIdArquivoAudiencia());
+		arquivoAudiencia = this.get(sessao, arquivoAudiencia, 0);
 				
 		vo.setFlgAtivo("N");
 		vo.setIdUsuarioAlt(util.getUsuarioLogado().getIdUsuario());
@@ -90,48 +87,10 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 		return vo;
 	}
 	
-	public Audiencia ativar(Audiencia vo) throws Exception
-	{
-		Session sessao = HibernateUtil.getSession();
-		sessao.setFlushMode(FlushMode.COMMIT);
-		Transaction tx = sessao.beginTransaction();
-		try
-		{
-			vo = ativar(sessao, vo);
-			tx.commit();
-			return vo;
-		}
-		catch (Exception e)
-		{
-			vo.setFlgAtivo("N");
-			tx.rollback();
-			throw e;
-		}
-		finally
-		{
-			sessao.close();
-		}
-	}
-	
-	public Audiencia ativar(Session sessao, Audiencia vo) throws Exception
-	{
-		Audiencia audiencia = new Audiencia();
-		audiencia.setIdAudiencia(vo.getIdAudiencia());
-		audiencia = this.get(sessao, audiencia, 0);
-		
-		vo.setFlgAtivo("S");
-		vo.setIdUsuarioAlt(util.getUsuarioLogado().getIdUsuario());
-		vo.setDatAlteracao(new Date());
-		
-		super.alterar(sessao, vo);
-		
-		return vo;
-	}
-	
 	@Override
 	protected Criteria montaCriteria(Session sessao, int join)
 	{
-		Criteria criteria = sessao.createCriteria(Audiencia.class);
+		Criteria criteria = sessao.createCriteria(ArquivoAudiencia.class);
 
 		if ((join & JOIN_USUARIO_CAD) != 0)
 	    {
@@ -143,18 +102,14 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	         criteria.createAlias("usuarioAlt", "usuarioAlt", JoinType.LEFT_OUTER_JOIN);
 	    }
 		
-		if ((join & JOIN_ARQUIVO) != 0)
-	    {
-			criteria.createAlias("listArquivo", "listArquivo", JoinType.LEFT_OUTER_JOIN);
-	    }
-		
 		return criteria;
 	}
 		
 	@Override
-	protected void setarOrdenacao(Criteria criteria, Audiencia vo, int join)
+	protected void setarOrdenacao(Criteria criteria, ArquivoAudiencia vo, int join)
 	{
-		criteria.addOrder(Order.desc("datAudiencia"));
+		criteria.addOrder(Order.desc("tipo"));
+		criteria.addOrder(Order.asc("nome"));
 	}
 
 	@Override

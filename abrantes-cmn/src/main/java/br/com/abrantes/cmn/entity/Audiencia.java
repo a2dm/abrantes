@@ -3,6 +3,7 @@ package br.com.abrantes.cmn.entity;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,11 +13,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Proxy;
 
 /**
@@ -113,6 +117,10 @@ public class Audiencia implements Serializable {
 
 	@Column(name = "flg_ativo")
 	private String flgAtivo;
+	
+	@OneToMany(mappedBy="audiencia", fetch = FetchType.LAZY)
+    @Cascade(CascadeType.ALL)
+    private List<ArquivoAudiencia> listArquivo;
 
 	public BigInteger getIdAudiencia() {
 		return idAudiencia;
@@ -312,6 +320,14 @@ public class Audiencia implements Serializable {
 
 	public void setFlgAtivo(String flgAtivo) {
 		this.flgAtivo = flgAtivo;
+	}
+
+	public List<ArquivoAudiencia> getListArquivo() {
+		return listArquivo;
+	}
+
+	public void setListArquivo(List<ArquivoAudiencia> listArquivo) {
+		this.listArquivo = listArquivo;
 	}
 
 }
