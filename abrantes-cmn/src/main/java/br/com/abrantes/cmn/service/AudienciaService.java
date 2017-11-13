@@ -1,8 +1,17 @@
 package br.com.abrantes.cmn.service;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.faces.context.FacesContext;
+import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
@@ -11,6 +20,7 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.sql.JoinType;
 
+import br.com.abrantes.cmn.entity.ArquivoAudiencia;
 import br.com.abrantes.cmn.entity.Audiencia;
 import br.com.abrantes.cmn.util.A2DMHbNgc;
 import br.com.abrantes.cmn.util.HibernateUtil;
@@ -46,11 +56,62 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	
 	public AudienciaService()
 	{
+		adicionarFiltro("idAudiencia", RestritorHb.RESTRITOR_EQ,"idAudiencia");
 		adicionarFiltro("datAudiencia", RestritorHb.RESTRITOR_EQ,"datAudiencia");
 		adicionarFiltro("vara", RestritorHb.RESTRITOR_LIKE, "vara");
 		adicionarFiltro("processo", RestritorHb.RESTRITOR_EQ, "processo");
 		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");		
 	}
+	
+	@Override
+	public Audiencia inserir(Session sessao, Audiencia vo) throws Exception
+	{
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		List<ArquivoAudiencia> lista = new ArrayList<ArquivoAudiencia>();
+		lista.addAll(vo.getListArquivo());
+		
+		vo.setListArquivo(null);
+		
+		validarInserir(sessao, vo);
+		sessao.save(vo);
+		sessao.flush();
+		
+		if(lista != null)
+		{
+			for (ArquivoAudiencia obj : lista)
+			{
+				obj.setIdAudiencia(vo.getIdAudiencia());
+				obj.setIdUsuarioCad(vo.getIdUsuarioCad());
+				obj.setDatCadastro(new Date());
+				obj.setFlgAtivo("S");
+				obj.setDesArquivo(request.getRequestedSessionId() + String.valueOf(Math.random() * 10000) + obj.getNome());
+				
+				ArquivoAudienciaService.getInstancia().inserir(sessao, obj);
+				this.salvarFileDiretorio(obj);
+			}
+		}
+		
+		return vo;
+	}
+	
+	public void salvarFileDiretorio(ArquivoAudiencia file) throws Exception
+	{
+		String nomeArquivoSaida = "C:\\Users\\Diego\\Documents\\abrantes\\files\\" + file.getDesArquivo();
+
+        try (InputStream is = file.getFile().getInputStream();
+                OutputStream out = new FileOutputStream(nomeArquivoSaida)) {
+
+            int read = 0;
+            byte[] bytes = new byte[20*1024*1024];
+
+            while ((read = is.read(bytes)) != -1) {
+                out.write(bytes, 0, read);
+            }
+
+        } catch (IOException e) {
+            throw e;
+        }
+	}	
 	
 	public Audiencia inativar(Audiencia vo) throws Exception
 	{

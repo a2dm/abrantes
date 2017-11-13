@@ -1,7 +1,7 @@
 package br.com.abrantes.web.bean;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -12,19 +12,18 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 
-import org.richfaces.event.FileUploadEvent;
-import org.richfaces.model.UploadedFile;
+import org.apache.commons.io.IOUtils;
 
 import br.com.abrantes.cmn.entity.ArquivoAudiencia;
 import br.com.abrantes.cmn.entity.Audiencia;
 import br.com.abrantes.cmn.entity.OrigemProcesso;
 import br.com.abrantes.cmn.entity.TpAudiencia;
 import br.com.abrantes.cmn.entity.TpContratacao;
-import br.com.abrantes.cmn.service.ArquivoAudienciaService;
 import br.com.abrantes.cmn.service.AudienciaService;
 import br.com.abrantes.cmn.service.OrigemProcessoService;
 import br.com.abrantes.cmn.service.TpAudienciaService;
@@ -33,7 +32,6 @@ import br.com.abrantes.cmn.util.jsf.AbstractBean;
 import br.com.abrantes.cmn.util.jsf.JSFUtil;
 import br.com.abrantes.cmn.util.jsf.Variaveis;
 import br.com.abrantes.cmn.util.validators.ValidaPermissao;
-import br.com.abrantes.cmn.vo.UploadedImage;
 import br.com.abrantes.ngc.functions.MenuControl;
 
 @RequestScoped
@@ -48,15 +46,16 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 	
 	private List<TpContratacao> listaTpContratacao;
 	
-	private ArquivoAudiencia arquivo;
+	private String activeTab;
 	
-//	private UploadedImage file;
-	
-	private ArrayList<UploadedImage> files = new ArrayList<UploadedImage>();
-	
+	private List<ArquivoAudiencia> listaArquivoAudiencia;
+	 
 	private Part file;
 	
-	private String fileContent;
+	private String nomeArquivo;
+	
+	private ArquivoAudiencia arquivoAudiencia;
+	
 	
 	public AudienciaBean()
 	{
@@ -66,24 +65,41 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		
 		MenuControl.ativarMenu("flgMenuCad");
 		MenuControl.ativarSubMenu("flgMenuCadAud");
+		
+		this.setActiveTab("Documentação");
 	}
 	
-	public void adicionarArquivo() {
-		try (InputStream input = file.getInputStream()) {
-			UploadedImage uploadedImage = new UploadedImage();
-			uploadedImage.setName(file.getName());
-			uploadedImage.setLength(file.getSize());
-			
-			files.add(uploadedImage);
+	public String preparaCadastrarAudiencia()
+	{
+		try
+		{
+			if(validarAcesso(Variaveis.ACAO_PREPARA_INSERIR))
+			{
+				setEntity(getNewEntityInstance());
+	    		setCurrentState(STATE_INSERT);
+	    		 
+	    		setDefaultInserir();
+	    		setListaInserir();
+			}
 		}
-	    catch (IOException e) {
-	        // Show faces message?
-	    }
-	}
-	
+		catch (Exception e)
+		{
+			FacesMessage message = new FacesMessage(e.getMessage());
+			message.setSeverity(FacesMessage.SEVERITY_ERROR);
+			if(e.getMessage() == null)
+				FacesContext.getCurrentInstance().addMessage("", message);
+			else
+				FacesContext.getCurrentInstance().addMessage(null, message);
+		}
+		
+		return "audienciaCadastrar";
+   }
+
 	@Override
 	protected void setListaInserir() throws Exception
 	{
+		this.setListaArquivoAudiencia(new ArrayList<ArquivoAudiencia>());
+		
 		adicionarListaTpAudiencia();
 		adicionarListaTpContratacao();
 		adicionarListaOrigemProcesso();
@@ -155,6 +171,30 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 	protected void validarInserir() throws Exception
 	{
 
+	}
+	
+	public void inserirAudiencia(ActionEvent event) 
+	{
+		try
+		{
+			if(validarAcesso(Variaveis.ACAO_INSERIR))
+			{
+				validarInserir();
+				completarInserir();
+				setEntity(AudienciaService.getInstancia().inserir(getEntity()));
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro inserido com sucesso.", null));
+				this.preparaCadastrarAudiencia();
+			}
+		}
+		catch (Exception e)
+		{
+			FacesMessage message = new FacesMessage(e.getMessage());
+			message.setSeverity(FacesMessage.SEVERITY_ERROR);
+			if(e.getMessage() == null)
+				FacesContext.getCurrentInstance().addMessage("", message);
+			else
+				FacesContext.getCurrentInstance().addMessage(null, message);
+		}
 	}
 	
 	public void inativar() 
@@ -259,41 +299,45 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		}
 	}
 	
-	@Override
-	protected void completarInserir() throws Exception
+	public String downloadArquivo()
 	{
-		this.getEntity().setFlgAtivo("S");
-		this.getEntity().setDatCadastro(new Date());
-		this.getEntity().setIdUsuarioCad(util.getUsuarioLogado().getIdUsuario());
-	}
-	
-	public void inativarArquivo() 
-	{		
 		try
 		{
-			if(this.getEntity() != null)
-			{
-				if(validarAcesso(Variaveis.ACAO_INATIVAR))
-				{
-					this.getArquivo().setDatAlteracao(new Date());
-					this.getArquivo().setIdUsuarioAlt(util.getUsuarioLogado().getIdUsuario());
-					
-					ArquivoAudienciaService.getInstancia().inativar(this.getArquivo());
-					
-					FacesMessage message = new FacesMessage("Registro inativado com sucesso!");
-					message.setSeverity(FacesMessage.SEVERITY_INFO);
-					FacesContext.getCurrentInstance().addMessage(null, message);
-				}
-			}
+			Part file = this.getArquivoAudiencia().getFile();
+			
+			 FacesContext facesContext = FacesContext.getCurrentInstance();
+			 HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+		        
+			 response.reset(); 
+		     response.setContentType("application/octet-stream");
+		     response.setContentLength(Integer.valueOf(file.getSize()+""));
+		     response.setHeader("Content-disposition", "attachment; filename=" + this.getArquivoAudiencia().getNome());
+		        
+		     OutputStream output = response.getOutputStream();		     
+		     output.write(IOUtils.toByteArray(file.getInputStream()));
+		     
+		     output.close();
+		     facesContext.responseComplete(); 
 		}
 		catch (Exception e) 
 		{
 			FacesMessage message = new FacesMessage(e.getMessage());
 	        message.setSeverity(FacesMessage.SEVERITY_ERROR);
 	        FacesContext.getCurrentInstance().addMessage(null, message);
-		}		
+		}
+		
+		return null;
 	}
-
+	
+	@Override
+	protected void completarInserir() throws Exception
+	{
+		this.getEntity().setFlgAtivo("S");
+		this.getEntity().setDatCadastro(new Date());
+		this.getEntity().setIdUsuarioCad(util.getUsuarioLogado().getIdUsuario());
+		this.getEntity().setListArquivo(this.getListaArquivoAudiencia());
+	}
+	
 	@Override
 	protected boolean validarAcesso(String acao)
 	{
@@ -316,27 +360,6 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		return temAcesso;
 	}
 
-	public void handleFileUpload(FileUploadEvent event) {
-		UploadedFile item = event.getUploadedFile();
-		UploadedImage file = new UploadedImage();
-		file.setLength(item.getData().length);
-		file.setName(item.getName());
-		file.setData(item.getData());
-		files.add(file);
-		
-		FacesMessage message = new FacesMessage("Succesful", event.getUploadedFile().getName() + " is uploaded.");
-        FacesContext.getCurrentInstance().addMessage(null, message);
-    }
-	
-	@SuppressWarnings("resource")
-	public void upload() {
-		try {
-			fileContent = new Scanner(file.getInputStream()).useDelimiter("\\A").next();
-		} catch (IOException e) {
-			
-		}
-	}
-
 	public void validateFile(FacesContext ctx, UIComponent comp, Object value) {
 		List<FacesMessage> msgs = new ArrayList<FacesMessage>();
 		Part file = (Part) value;
@@ -351,6 +374,95 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		}
 	}
 
+	@SuppressWarnings("resource")
+	public String importar()
+	{
+		try
+		{			
+			new Scanner(file.getInputStream()).useDelimiter("\\A").next();
+			
+			this.validar(file);
+            
+            ArquivoAudiencia arquivoAudiencia = new ArquivoAudiencia();
+            arquivoAudiencia.setNome(this.getFileName(file));
+            arquivoAudiencia.setTipo(file.getContentType());
+            arquivoAudiencia.setTamanho(file.getSize());
+            arquivoAudiencia.setFile(file);
+            
+            if(this.getListaArquivoAudiencia() != null
+            		&& this.getListaArquivoAudiencia().size() > 0)
+            {
+            	for (ArquivoAudiencia obj : this.getListaArquivoAudiencia())
+            	{
+					if(obj.getNome().trim().equals(arquivoAudiencia.getNome().trim()))
+					{
+						throw new Exception("Este arquivo já foi adicionado na lista.");
+					}
+				}
+            }
+            	
+            if(this.getListaArquivoAudiencia().size() >= 5)
+            {
+            	throw new Exception("Só é permitido anexar 5 arquivos por audiência.");
+            }
+            
+            this.getListaArquivoAudiencia().add(arquivoAudiencia);
+            
+            this.setActiveTab("Documentação");            
+        } 
+		catch (Exception e)
+		{
+        	FacesMessage message = new FacesMessage(e.getMessage());
+	        message.setSeverity(FacesMessage.SEVERITY_ERROR);
+	        FacesContext.getCurrentInstance().addMessage(null, message);
+        }
+		
+		return null;
+	}
+	
+	public void excluirArquivo()
+	{
+		for (int i = 0; i < this.getListaArquivoAudiencia().size(); i++)
+		{
+			if(this.getListaArquivoAudiencia().get(i).getNome().equals(this.getNomeArquivo()))
+			this.getListaArquivoAudiencia().remove(i);
+		}
+		
+	}
+	
+	private String getFileName(Part part) {
+		for (String cd : part.getHeader("content-disposition").split(";")) {
+			if (cd.trim().startsWith("filename")) {
+				return cd.substring(cd.indexOf('=') + 1).trim()
+						.replace("\"", "");
+			}
+		}
+		return null;
+	}
+	
+	public void validar(Part value) throws Exception
+	{
+        Part arquivo = (Part) value;
+
+        if (arquivo.getSize() > (20*1024*1024)) {
+            throw new Exception("Arquivo muito grande. O arquivo deve ter o tamanho máximo de 20mb.");
+        }
+
+        if (!"application/pdf".equals(arquivo.getContentType())
+        		&& !"application/msword".equals(arquivo.getContentType())
+        		&& !"image/jpg".equals(arquivo.getContentType())
+        		&& !"image/jpeg".equals(arquivo.getContentType())
+        		&& !"image/png".equals(arquivo.getContentType())) {
+            throw new Exception("Tipo de arquivo inválido, O arquivo deve ser dos tipos: .PDF, .DOC, .JPG, .JPEG, .PNG.");
+        }
+    }
+	
+	public String cancelarAudiencia()
+	{
+		this.preparaPesquisar();
+		return "audiencia";
+	}
+	
 	public Part getFile() {
 		return file;
 	}
@@ -383,35 +495,35 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		this.listaTpContratacao = listaTpContratacao;
 	}
 
-	public ArquivoAudiencia getArquivo() {
-		return arquivo;
+	public List<ArquivoAudiencia> getListaArquivoAudiencia() {
+		return listaArquivoAudiencia;
 	}
 
-	public void setArquivo(ArquivoAudiencia arquivo) {
-		this.arquivo = arquivo;
+	public void setListaArquivoAudiencia(List<ArquivoAudiencia> listaArquivoAudiencia) {
+		this.listaArquivoAudiencia = listaArquivoAudiencia;
 	}
 
-//	public UploadedImage getFile() {
-//		return file;
-//	}
-//
-//	public void setFile(UploadedImage file) {
-//		this.file = file;
-//	}
-
-	public ArrayList<UploadedImage> getFiles() {
-		return files;
+	public String getActiveTab() {
+		return activeTab;
 	}
 
-	public void setFiles(ArrayList<UploadedImage> files) {
-		this.files = files;
+	public void setActiveTab(String activeTab) {
+		this.activeTab = activeTab;
 	}
 
-	public String getFileContent() {
-		return fileContent;
+	public String getNomeArquivo() {
+		return nomeArquivo;
 	}
 
-	public void setFileContent(String fileContent) {
-		this.fileContent = fileContent;
+	public void setNomeArquivo(String nomeArquivo) {
+		this.nomeArquivo = nomeArquivo;
+	}
+
+	public ArquivoAudiencia getArquivoAudiencia() {
+		return arquivoAudiencia;
+	}
+
+	public void setArquivoAudiencia(ArquivoAudiencia arquivoAudiencia) {
+		this.arquivoAudiencia = arquivoAudiencia;
 	}
 }

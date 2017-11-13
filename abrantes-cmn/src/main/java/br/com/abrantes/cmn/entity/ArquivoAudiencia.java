@@ -16,6 +16,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.servlet.http.Part;
 
 import org.hibernate.annotations.Proxy;
 
@@ -32,11 +34,11 @@ public class ArquivoAudiencia implements Serializable {
 	@Column(name = "id_arquivo_audiencia")
 	private Integer idArquivoAudiencia;
 
+	@Column(name = "des_arquivo")
+	private String desArquivo;
+	
 	@Column(name = "nome")
 	private String nome;
-
-	@Column(name = "caminho")
-	private String caminho;
 
 	@Column(name = "tipo")
 	private String tipo;
@@ -51,6 +53,10 @@ public class ArquivoAudiencia implements Serializable {
 	@Column(name = "id_audiencia")
 	private BigInteger idAudiencia;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dat_cadastro")
+	private Date datCadastro;
+	
 	@Column(name = "id_usuario_cad")
 	private BigInteger idUsuarioCad;
 
@@ -71,6 +77,9 @@ public class ArquivoAudiencia implements Serializable {
 
 	@Column(name = "flg_ativo")
 	private String flgAtivo;
+	
+	@Transient
+	private Part file;
 
 	public Integer getIdArquivoAudiencia() {
 		return idArquivoAudiencia;
@@ -87,15 +96,7 @@ public class ArquivoAudiencia implements Serializable {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
-	public String getCaminho() {
-		return caminho;
-	}
-
-	public void setCaminho(String caminho) {
-		this.caminho = caminho;
-	}
-
+	
 	public String getTipo() {
 		return tipo;
 	}
@@ -175,7 +176,28 @@ public class ArquivoAudiencia implements Serializable {
 	public void setFlgAtivo(String flgAtivo) {
 		this.flgAtivo = flgAtivo;
 	}
-	
-	
 
+	public Date getDatCadastro() {
+		return datCadastro;
+	}
+
+	public void setDatCadastro(Date datCadastro) {
+		this.datCadastro = datCadastro;
+	}
+
+	public Part getFile() {
+		return file;
+	}
+
+	public void setFile(Part file) {
+		this.file = file;
+	}
+
+	public String getDesArquivo() {
+		return desArquivo;
+	}
+
+	public void setDesArquivo(String desArquivo) {
+		this.desArquivo = desArquivo;
+	}
 }

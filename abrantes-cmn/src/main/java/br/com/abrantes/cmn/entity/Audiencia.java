@@ -19,8 +19,6 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Proxy;
 
 /**
@@ -119,7 +117,6 @@ public class Audiencia implements Serializable {
 	private String flgAtivo;
 	
 	@OneToMany(mappedBy="audiencia", fetch = FetchType.LAZY)
-    @Cascade(CascadeType.ALL)
     private List<ArquivoAudiencia> listArquivo;
 
 	public BigInteger getIdAudiencia() {

@@ -341,4 +341,14 @@
 	padding: 15px !important;
 	border-bottom: 1px solid #e5e5e5 !important;
 	border-bottom-color: #f4f4f4 !important;
-} 
+}
+
+.file {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+

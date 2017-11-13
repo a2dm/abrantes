@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition	xmlns="http://www.w3.org/1999/xhtml"
+			    xmlns:ui="http://java.sun.com/jsf/facelets"
+			    xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:a4j="http://richfaces.org/a4j"
+				xmlns:rich="http://richfaces.org/rich"
+				xmlns:p="http://primefaces.org/ui"
+				xmlns:mj="http://mojarra.dev.java.net/mojarra_ext"
+				xmlns:t="http://myfaces.apache.org/tomahawk"
+				template="crud_template_audiencia.xhtml">
+	
+	<ui:param name="crudBean" value="#{audienciaBean}" />	
+	
+	<ui:define name="saveStateObjectsDefined">
+		<t:saveState value="#{crudBean.nomeArquivo}" />
+		<t:saveState value="#{crudBean.activeTab}" />
+		<t:saveState value="#{crudBean.listaTpAudiencia}" />
+		<t:saveState value="#{crudBean.listaArquivoAudiencia}" />
+		<t:saveState value="#{crudBean.listaOrigemProcesso}" />
+		<t:saveState value="#{crudBean.listaTpContratacao}" />
+	</ui:define>
+	
+	<ui:define name="content">
+		<h:panelGroup id="frm">
+			<f:subview id="viewEdicao">
+				<div class="form-horizontal">
+				<rich:tabPanel switchType="client" activeItem="Documentação">
+					
+					 <rich:tab name="Dados Gerais">	
+						<h:form>
+						 	<h:panelGroup id="panelGroupDeAlterar" style="height:100%;width:100%;" rendered="#{crudBean.editing}">								
+								<div class="box-body" style="padding: 1px;">
+				                	<div class="form-group">
+				                   	   <label for="inputEmail3" class="col-sm-2 control-label">Código</label>
+					                   <div class="col-sm-6" style="padding-top: 5px;">
+					                     <h:outputText value="#{crudBean.entity.idAudiencia}"/>
+					                   </div>
+				                 	</div>
+				                 	
+				                 	<div class="form-group">
+				                   	   <label for="inputEmail3" class="col-sm-2 control-label">Código Externo</label>
+					                   <div class="col-sm-6" style="padding-top: 5px;">
+					                     <h:outputText value="#{crudBean.entity.idExt}"/>
+					                   </div>
+				                 	</div>
+			                 	</div>
+							</h:panelGroup>
+						 
+							<div class="box-body" style="padding: 1px;">
+								<div class="form-group">
+			                   	   <label for="inputEmail3" class="col-sm-2 control-label">Data da Audiência</label>
+				                   <div class="col-sm-2" style="width: 13% !important;">
+				                	  <rich:calendar value="#{crudBean.entity.datAudiencia}" buttonClass="glyphicon glyphicon-calendar" inputSize="9" buttonIcon="../images/calendar.png"  datePattern="dd/MM/yyyy" inputClass="form-control" showWeeksBar="false" enableManualInput="true" oninputkeypress="return formataData(event,this);" maxlength="10"/>
+				                   </div>
+			                 	</div>
+			                 	
+			                 	<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Nº do Processo</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.processo}" styleClass="form-control" maxlength="200" id="processo">
+					                 	<f:passThroughAttribute name="placeholder" value="Nº do Processo"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+							
+			                	<div class="form-group">
+			                   	   <label for="inputEmail3" class="col-sm-2 control-label">Vara</label>
+				                   <div class="col-sm-6">
+				                     <h:inputText value="#{crudBean.entity.vara}" styleClass="form-control" size="100" maxlength="250" id="nome">
+					                     <f:passThroughAttribute name="placeholder" value="Vara"/>
+				                     </h:inputText>
+				                   </div>
+			                 	</div>
+			                 	
+			                 	<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Requerido</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.requerido}" styleClass="form-control" size="100" maxlength="200" id="requerido">
+					                 	<f:passThroughAttribute name="placeholder" value="Requerido"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Requerente</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.requerente}" styleClass="form-control" size="100" maxlength="200" id="requerente">
+					                 	<f:passThroughAttribute name="placeholder" value="Requerente"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+			                 	
+			                 	<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Cidade</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.cidade}" styleClass="form-control" maxlength="200" id="cidade">
+					                 	<f:passThroughAttribute name="placeholder" value="Cidade"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Tipo</label>
+					               <div class="col-sm-4">
+					               	<h:selectOneMenu value="#{crudBean.entity.idTpAudiencia}" styleClass="form-control" id="tpAudiencia">
+										<t:selectItems var="o" itemValue="#{o.idTpAudiencia}" itemLabel="#{o.desTpAudiencia}" value="#{crudBean.listaTpAudiencia}" />
+									</h:selectOneMenu>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Origem do Processo</label>
+					               <div class="col-sm-4">
+					               	<h:selectOneMenu value="#{crudBean.entity.idOrigemProcesso}" styleClass="form-control" id="origemProcesso">
+										<t:selectItems var="o" itemValue="#{o.idOrigemProcesso}" itemLabel="#{o.desOrigemProcesso}" value="#{crudBean.listaOrigemProcesso}" />
+									</h:selectOneMenu>
+					               </div>
+					            </div>
+			                 </div>
+			                 </h:form>
+		                </rich:tab>
+			                	                	                
+		                <rich:tab name="Contratação">
+		                <h:form>
+		                	<div class="box-body" style="padding: 1px;">
+								<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Tipo de Contratação</label>
+					               <div class="col-sm-4">
+					               	<h:selectOneMenu value="#{crudBean.entity.idTpContratacao}" styleClass="form-control" id="tipoContratacao">
+										<t:selectItems var="o" itemValue="#{o.idTpContratacao}" itemLabel="#{o.desTpContratacao}" value="#{crudBean.listaTpContratacao}" />
+									</h:selectOneMenu>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Contratante</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.contratante}" styleClass="form-control" maxlength="200" id="contratante">
+					                 	<f:passThroughAttribute name="placeholder" value="Contratante"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Advogado Contratado</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.contratado}" styleClass="form-control" size="100" maxlength="200" id="contratado">
+					                 	<f:passThroughAttribute name="placeholder" value="Advogado Contratado"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Valor Contratado</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.valorContratado}" styleClass="form-control" size="100" maxlength="200" id="valorContratado">
+					                 	<f:passThroughAttribute name="placeholder" value="Valor Contratado"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Valor Recebido</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.valorRecebido}" styleClass="form-control" maxlength="200" id="valorRecebido">
+					                 	<f:passThroughAttribute name="placeholder" value="Valor Recebido"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+			                 </div>
+			                 </h:form>
+		                </rich:tab>
+		                
+		                <rich:tab name="Documentação">
+		                	<h:form enctype="multipart/form-data">
+		                	<ui:include src="panelUploadAudiencia.xhtml" />
+		                	</h:form>
+		                </rich:tab>
+		              </rich:tabPanel>
+					</div>
+			</f:subview>
+		</h:panelGroup>
+	</ui:define>
+
+
+	<ui:define name="buttonItens" style="height:100%; width:100%;">				
+		<h:form>
+			<a4j:commandButton id="inserir" styleClass="btn btn-primary" value="Gravar (G)" accesskey="G" actionListener="#{crudBean.inserirAudiencia}" rendered="#{crudBean.inserting}" />
+			<h:outputText value=" "/>
+			<a4j:commandButton id="alterar" styleClass="btn btn-primary" value="Alterar (A)" accesskey="A" actionListener="#{crudBean.alterar}" rendered="#{crudBean.editing}" render="frm"/>
+			<h:outputText value=" "/>
+			<h:commandButton id="cancelar" styleClass="btn btn-primary" value="Cancelar (C)" accesskey="C" action="#{crudBean.cancelarAudiencia}" />
+		</h:form>
+	</ui:define>
+
+	
+</ui:composition>
