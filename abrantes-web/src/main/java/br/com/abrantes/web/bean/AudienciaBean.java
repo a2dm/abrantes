@@ -1,5 +1,6 @@
 package br.com.abrantes.web.bean;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -221,8 +222,7 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		}		
 	}
 	
-	@Override
-	public void preparaAlterar() 
+	public String preparaAlterarAudiencia() 
 	{
 		try
 		{
@@ -236,7 +236,8 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 						   										   	    | AudienciaService.JOIN_USUARIO_ALT
 						   										        | AudienciaService.JOIN_ARQUIVO);
 				
-				setEntity(audiencia);
+				setEntity(audiencia);				
+				this.setListaArquivoAudiencia(audiencia.getListArquivo());
 			}
 		}
 	    catch (Exception e)
@@ -245,6 +246,8 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 	       message.setSeverity(FacesMessage.SEVERITY_ERROR);
 	       FacesContext.getCurrentInstance().addMessage(null, message);
 	    }
+		
+		return "audienciaCadastrar";
 	}
 
 	@Override
@@ -304,20 +307,29 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		try
 		{
 			Part file = this.getArquivoAudiencia().getFile();
+				
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+			        
+			response.reset(); 
+			response.setContentType("application/octet-stream");
+			response.setContentLength(Integer.valueOf(this.getArquivoAudiencia().getTamanho()+""));
+			response.setHeader("Content-disposition", "attachment; filename=" + this.getArquivoAudiencia().getNome());
+			        
+			OutputStream output = response.getOutputStream();		     
 			
-			 FacesContext facesContext = FacesContext.getCurrentInstance();
-			 HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-		        
-			 response.reset(); 
-		     response.setContentType("application/octet-stream");
-		     response.setContentLength(Integer.valueOf(file.getSize()+""));
-		     response.setHeader("Content-disposition", "attachment; filename=" + this.getArquivoAudiencia().getNome());
-		        
-		     OutputStream output = response.getOutputStream();		     
-		     output.write(IOUtils.toByteArray(file.getInputStream()));
-		     
-		     output.close();
-		     facesContext.responseComplete(); 
+			if(this.getArquivoAudiencia().getIdArquivoAudiencia() == null)
+			{
+				output.write(IOUtils.toByteArray(file.getInputStream()));
+			}
+			else
+			{
+				FileInputStream is = new FileInputStream(AudienciaService.DIRETORIO_ARQUIVO + this.getArquivoAudiencia().getDesArquivo());
+			    output.write(IOUtils.toByteArray(is));
+			}
+			     
+			output.close();
+			facesContext.responseComplete();
 		}
 		catch (Exception e) 
 		{

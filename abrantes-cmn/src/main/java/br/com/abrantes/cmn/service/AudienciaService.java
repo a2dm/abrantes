@@ -37,6 +37,8 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	
 	public static final int JOIN_ARQUIVO = 4;
 	
+	public static final String DIRETORIO_ARQUIVO = "C:\\Users\\Diego\\Documents\\abrantes\\files\\";
+	
 	private JSFUtil util = new JSFUtil();
 		
 	@SuppressWarnings("rawtypes")
@@ -96,7 +98,7 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	
 	public void salvarFileDiretorio(ArquivoAudiencia file) throws Exception
 	{
-		String nomeArquivoSaida = "C:\\Users\\Diego\\Documents\\abrantes\\files\\" + file.getDesArquivo();
+		String nomeArquivoSaida = DIRETORIO_ARQUIVO + file.getDesArquivo();
 
         try (InputStream is = file.getFile().getInputStream();
                 OutputStream out = new FileOutputStream(nomeArquivoSaida)) {
