@@ -22,6 +22,7 @@ import org.hibernate.sql.JoinType;
 
 import br.com.abrantes.cmn.entity.ArquivoAudiencia;
 import br.com.abrantes.cmn.entity.Audiencia;
+import br.com.abrantes.cmn.entity.Parametro;
 import br.com.abrantes.cmn.util.A2DMHbNgc;
 import br.com.abrantes.cmn.util.HibernateUtil;
 import br.com.abrantes.cmn.util.RestritorHb;
@@ -96,18 +97,22 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	
 	public void salvarFileDiretorio(ArquivoAudiencia file) throws Exception
 	{
-		String nomeArquivoSaida = "C:\\Users\\Diego\\Documents\\abrantes\\files\\" + file.getDesArquivo();
+		Parametro parametro = new Parametro();
+		parametro.setDescricao("FILES_AUDIENCIA");
+		parametro = ParametroService.getInstancia().get(parametro, 0);
+		
+		String nomeArquivoSaida = parametro.getValor() + file.getDesArquivo();
 
         try (InputStream is = file.getFile().getInputStream();
-                OutputStream out = new FileOutputStream(nomeArquivoSaida)) {
-
+             OutputStream out = new FileOutputStream(nomeArquivoSaida)) 
+        {
             int read = 0;
             byte[] bytes = new byte[20*1024*1024];
 
-            while ((read = is.read(bytes)) != -1) {
+            while ((read = is.read(bytes)) != -1) 
+            {
                 out.write(bytes, 0, read);
             }
-
         } catch (IOException e) {
             throw e;
         }
