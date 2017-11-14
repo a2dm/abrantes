@@ -44,7 +44,7 @@ public class ArquivoAudiencia implements Serializable {
 	private String tipo;
 
 	@Column(name = "tamanho")
-	private float tamanho;
+	private Long tamanho;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_audiencia", insertable = false, updatable = false)
@@ -105,11 +105,11 @@ public class ArquivoAudiencia implements Serializable {
 		this.tipo = tipo;
 	}
 
-	public float getTamanho() {
+	public Long getTamanho() {
 		return tamanho;
 	}
 
-	public void setTamanho(float tamanho) {
+	public void setTamanho(Long tamanho) {
 		this.tamanho = tamanho;
 	}
 

@@ -175,9 +175,7 @@
 		                </rich:tab>
 		                
 		                <rich:tab name="Documentação">
-		                	<h:form enctype="multipart/form-data">
 		                	<ui:include src="panelUploadAudiencia.xhtml" />
-		                	</h:form>
 		                </rich:tab>
 		              </rich:tabPanel>
 					</div>
@@ -188,7 +186,7 @@
 
 	<ui:define name="buttonItens" style="height:100%; width:100%;">				
 		<h:form>
-			<a4j:commandButton id="inserir" styleClass="btn btn-primary" value="Gravar (G)" accesskey="G" actionListener="#{crudBean.inserirAudiencia}" rendered="#{crudBean.inserting}" />
+			<a4j:commandButton id="inserir" styleClass="btn btn-primary" value="Gravar (G)" accesskey="G" actionListener="#{crudBean.inserirAudiencia}" rendered="#{crudBean.inserting}" render="frm"/>
 			<h:outputText value=" "/>
 			<a4j:commandButton id="alterar" styleClass="btn btn-primary" value="Alterar (A)" accesskey="A" actionListener="#{crudBean.alterar}" rendered="#{crudBean.editing}" render="frm"/>
 			<h:outputText value=" "/>

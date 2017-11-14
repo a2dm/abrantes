@@ -19,6 +19,7 @@
 		<t:saveState value="#{crudBean.listaTpAudiencia}" />
 		<t:saveState value="#{crudBean.listaOrigemProcesso}" />
 		<t:saveState value="#{crudBean.listaTpContratacao}" />
+		<t:saveState value="#{crudBean.listaArquivoAudiencia}" />
 	</ui:define>
 	
 	<ui:define name="content">
@@ -145,9 +146,9 @@
 							</a4j:commandButton>
 						</rich:column>
 						<rich:column style="text-align: center; vertical-align: middle;">
-							<a4j:commandButton image="../images/edit.png" style="border:none; width: 18px; height: 18px;" title="ALTERAR" action="#{crudBean.preparaAlterar}" rendered="#{rst.flgAtivo == 'S'}" render="formulario, panelTitle" >
+							<h:commandButton image="../images/edit.png" style="border:none; width: 18px; height: 18px;" title="ALTERAR" action="#{crudBean.preparaAlterarAudiencia}" rendered="#{rst.flgAtivo == 'S'}" >
 								<f:setPropertyActionListener target="#{crudBean.entity}" value="#{rst}" />
-							</a4j:commandButton>
+							</h:commandButton>
 						</rich:column>
 						<rich:column style="text-align: center; vertical-align: middle;">
 							<a4j:commandButton image="../images/inativar.png" style="border:none; width: 18px; height: 18px;" title="INATIVAR" action="#{crudBean.inativar}" rendered="#{rst.flgAtivo == 'S'}" render="formulario, panelTitle" onclick="if (!confirm('Deseja realmente inativar este registro?')) return false">

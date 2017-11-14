@@ -52,7 +52,7 @@
 					</rich:column>
 					
 					<rich:column style="text-align: center; vertical-align: middle;">
-						<h:commandButton image="../images/file.png" style="border:none; width: 18px; height: 18px;" title="VISUALIZAR ARQUIVO" action="#{crudBean.downloadArquivo}">
+						<h:commandButton image="../images/file.png" style="border:none; width: 18px; height: 18px;" title="DOWNLOAD DO ARQUIVO" action="#{crudBean.downloadArquivo}">
 							<f:setPropertyActionListener target="#{crudBean.arquivoAudiencia}" value="#{file}" />
 						</h:commandButton>
 					</rich:column>
