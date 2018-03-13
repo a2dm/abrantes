@@ -16,6 +16,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.servlet.http.Part;
 
 import org.hibernate.annotations.Proxy;
 
@@ -32,25 +34,29 @@ public class ArquivoDiligencia implements Serializable {
 	@Column(name = "id_arquivo_diligencia")
 	private Integer idArquivoDiligencia;
 
+	@Column(name = "des_arquivo")
+	private String desArquivo;
+	
 	@Column(name = "nome")
 	private String nome;
-
-	@Column(name = "caminho")
-	private String caminho;
 
 	@Column(name = "tipo")
 	private String tipo;
 
 	@Column(name = "tamanho")
-	private float tamanho;
+	private Long tamanho;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_diligencia", insertable = false, updatable = false)
 	private Diligencia diligencia;
 
-	@Column(name = "id_diligencia")
-	private BigInteger idDiligencia;
+	@Column(name = "id_audiencia")
+	private BigInteger idAudiencia;
 
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "dat_cadastro")
+	private Date datCadastro;
+	
 	@Column(name = "id_usuario_cad")
 	private BigInteger idUsuarioCad;
 
@@ -71,6 +77,9 @@ public class ArquivoDiligencia implements Serializable {
 
 	@Column(name = "flg_ativo")
 	private String flgAtivo;
+	
+	@Transient
+	private Part file;
 
 	public Integer getIdArquivoDiligencia() {
 		return idArquivoDiligencia;
@@ -80,20 +89,12 @@ public class ArquivoDiligencia implements Serializable {
 		this.idArquivoDiligencia = idArquivoDiligencia;
 	}
 
-	public Diligencia getDiligencia() {
-		return diligencia;
+	public String getDesArquivo() {
+		return desArquivo;
 	}
 
-	public void setDiligencia(Diligencia diligencia) {
-		this.diligencia = diligencia;
-	}
-
-	public BigInteger getIdDiligencia() {
-		return idDiligencia;
-	}
-
-	public void setIdDiligencia(BigInteger idDiligencia) {
-		this.idDiligencia = idDiligencia;
+	public void setDesArquivo(String desArquivo) {
+		this.desArquivo = desArquivo;
 	}
 
 	public String getNome() {
@@ -104,14 +105,6 @@ public class ArquivoDiligencia implements Serializable {
 		this.nome = nome;
 	}
 
-	public String getCaminho() {
-		return caminho;
-	}
-
-	public void setCaminho(String caminho) {
-		this.caminho = caminho;
-	}
-
 	public String getTipo() {
 		return tipo;
 	}
@@ -120,12 +113,36 @@ public class ArquivoDiligencia implements Serializable {
 		this.tipo = tipo;
 	}
 
-	public float getTamanho() {
+	public Long getTamanho() {
 		return tamanho;
 	}
 
-	public void setTamanho(float tamanho) {
+	public void setTamanho(Long tamanho) {
 		this.tamanho = tamanho;
+	}
+
+	public Diligencia getDiligencia() {
+		return diligencia;
+	}
+
+	public void setDiligencia(Diligencia diligencia) {
+		this.diligencia = diligencia;
+	}
+
+	public BigInteger getIdAudiencia() {
+		return idAudiencia;
+	}
+
+	public void setIdAudiencia(BigInteger idAudiencia) {
+		this.idAudiencia = idAudiencia;
+	}
+
+	public Date getDatCadastro() {
+		return datCadastro;
+	}
+
+	public void setDatCadastro(Date datCadastro) {
+		this.datCadastro = datCadastro;
 	}
 
 	public BigInteger getIdUsuarioCad() {
@@ -176,4 +193,12 @@ public class ArquivoDiligencia implements Serializable {
 		this.flgAtivo = flgAtivo;
 	}
 
+	public Part getFile() {
+		return file;
+	}
+
+	public void setFile(Part file) {
+		this.file = file;
+	}
+	
 }

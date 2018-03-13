@@ -1,22 +1,34 @@
 package br.com.abrantes.web.bean;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 
+import org.apache.commons.io.IOUtils;
+
+import br.com.abrantes.cmn.entity.ArquivoDiligencia;
 import br.com.abrantes.cmn.entity.Diligencia;
 import br.com.abrantes.cmn.entity.OrigemProcesso;
+import br.com.abrantes.cmn.entity.Parametro;
 import br.com.abrantes.cmn.entity.TpContratacao;
 import br.com.abrantes.cmn.entity.TpDiligencia;
 import br.com.abrantes.cmn.service.DiligenciaService;
 import br.com.abrantes.cmn.service.OrigemProcessoService;
+import br.com.abrantes.cmn.service.ParametroService;
 import br.com.abrantes.cmn.service.TpContratacaoService;
 import br.com.abrantes.cmn.service.TpDiligenciaService;
 import br.com.abrantes.cmn.util.jsf.AbstractBean;
@@ -37,19 +49,102 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 	
 	private List<TpContratacao> listaTpContratacao;
 	
+	private String activeTab;
+	
+	private List<ArquivoDiligencia> listaArquivoDiligencia;
+	
+	private Part file;
+	
+	private String nomeArquivo;
+	
+	private ArquivoDiligencia arquivoDiligencia;
+	
 	public DiligenciaBean()
 	{
 		super(DiligenciaService.getInstancia());
 		this.ACTION_SEARCH = "diligencia";
 		this.pageTitle = "Cadastro / Diligência";
+
+		this.setActiveTab("Documentação");
 		
 		MenuControl.ativarMenu("flgMenuCad");
 		MenuControl.ativarSubMenu("flgMenuCadDil");
 	}
 	
+	public String preparaCadastrarDiligencia()
+	{
+		try
+		{
+			if(validarAcesso(Variaveis.ACAO_PREPARA_INSERIR))
+			{
+				setEntity(getNewEntityInstance());
+	    		setCurrentState(STATE_INSERT);
+	    		 
+	    		setDefaultInserir();
+	    		setListaInserir();
+			}
+		}
+		catch (Exception e)
+		{
+			FacesMessage message = new FacesMessage(e.getMessage());
+			message.setSeverity(FacesMessage.SEVERITY_ERROR);
+			if(e.getMessage() == null)
+				FacesContext.getCurrentInstance().addMessage("", message);
+			else
+				FacesContext.getCurrentInstance().addMessage(null, message);
+		}
+		
+		return "diligenciaCadastrar";
+   }
+	
+	public String downloadArquivo()
+	{
+		try
+		{
+			Part file = this.getArquivoDiligencia().getFile();
+				
+			FacesContext facesContext = FacesContext.getCurrentInstance();
+			HttpServletResponse response = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+			        
+			response.reset(); 
+			response.setContentType("application/octet-stream");
+			response.setContentLength(Integer.valueOf(this.getArquivoDiligencia().getTamanho()+""));
+			response.setHeader("Content-disposition", "attachment; filename=" + this.getArquivoDiligencia().getNome());
+			        
+			OutputStream output = response.getOutputStream();		     
+			
+			if(this.getArquivoDiligencia().getIdArquivoDiligencia() == null)
+			{
+				output.write(IOUtils.toByteArray(file.getInputStream()));
+			}
+			else
+			{
+				Parametro parametro = new Parametro();
+				parametro.setDescricao("FILES_DILIGENCIA");
+				parametro = ParametroService.getInstancia().get(parametro, 0);
+				
+				FileInputStream is = new FileInputStream(parametro.getValor() + this.getArquivoDiligencia().getDesArquivo());
+			    output.write(IOUtils.toByteArray(is));
+			}
+			     
+			output.close();
+			facesContext.responseComplete();
+		}
+		catch (Exception e) 
+		{
+			FacesMessage message = new FacesMessage(e.getMessage());
+	        message.setSeverity(FacesMessage.SEVERITY_ERROR);
+	        FacesContext.getCurrentInstance().addMessage(null, message);
+		}
+		
+		return null;
+	}
+	
 	@Override
 	protected void setListaInserir() throws Exception
 	{
+		this.setListaArquivoDiligencia(new ArrayList<ArquivoDiligencia>());
+		
 		adicionarListaTpDiligencia();
 		adicionarListaTpContratacao();
 		adicionarListaOrigemProcesso();
@@ -145,6 +240,58 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 	        message.setSeverity(FacesMessage.SEVERITY_ERROR);
 	        FacesContext.getCurrentInstance().addMessage(null, message);
 		}		
+	}
+	
+	public void inserirDiligencia(ActionEvent event) 
+	{
+		try
+		{
+			if(validarAcesso(Variaveis.ACAO_INSERIR))
+			{
+				validarInserir();
+				completarInserir();
+				setEntity(DiligenciaService.getInstancia().inserir(getEntity()));
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro inserido com sucesso.", null));
+				this.preparaCadastrarDiligencia();
+			}
+		}
+		catch (Exception e)
+		{
+			FacesMessage message = new FacesMessage(e.getMessage());
+			message.setSeverity(FacesMessage.SEVERITY_ERROR);
+			if(e.getMessage() == null)
+				FacesContext.getCurrentInstance().addMessage("", message);
+			else
+				FacesContext.getCurrentInstance().addMessage(null, message);
+		}
+	}
+	
+	public String preparaAlterarDiligencia() 
+	{
+		try
+		{
+			if(validarAcesso(Variaveis.ACAO_PREPARA_ALTERAR))
+			{
+				super.preparaAlterar();
+				Diligencia diligencia = new Diligencia();
+				diligencia.setIdDiligencia(getEntity().getIdDiligencia());
+				
+				diligencia = DiligenciaService.getInstancia().get(diligencia,DiligenciaService.JOIN_USUARIO_CAD
+						   										   	    | DiligenciaService.JOIN_USUARIO_ALT
+						   										        | DiligenciaService.JOIN_ARQUIVO);
+				
+				setEntity(diligencia);				
+				this.setListaArquivoDiligencia(diligencia.getListArquivo());
+			}
+		}
+	    catch (Exception e)
+	    {
+	       FacesMessage message = new FacesMessage(e.getMessage());
+	       message.setSeverity(FacesMessage.SEVERITY_ERROR);
+	       FacesContext.getCurrentInstance().addMessage(null, message);
+	    }
+		
+		return "audienciaCadastrar";
 	}
 	
 	@Override
@@ -253,6 +400,109 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 		
 		return temAcesso;
 	}
+	
+	public void validateFile(FacesContext ctx, UIComponent comp, Object value) {
+		List<FacesMessage> msgs = new ArrayList<FacesMessage>();
+		Part file = (Part) value;
+		if (file.getSize() > 1024) {
+			msgs.add(new FacesMessage("file too big"));
+		}
+		if (!"text/plain".equals(file.getContentType())) {
+			msgs.add(new FacesMessage("not a text file"));
+		}
+		if (!msgs.isEmpty()) {
+			throw new ValidatorException(msgs);
+		}
+	}
+
+	@SuppressWarnings("resource")
+	public String importar()
+	{
+		try
+		{			
+			new Scanner(file.getInputStream()).useDelimiter("\\A").next();
+			
+			this.validar(file);
+            
+            ArquivoDiligencia arquivoDiligencia = new ArquivoDiligencia();
+            arquivoDiligencia.setNome(this.getFileName(file));
+            arquivoDiligencia.setTipo(file.getContentType());
+            arquivoDiligencia.setTamanho(file.getSize());
+            arquivoDiligencia.setFile(file);
+            
+            if(this.getListaArquivoDiligencia() != null
+            		&& this.getListaArquivoDiligencia().size() > 0)
+            {
+            	for (ArquivoDiligencia obj : this.getListaArquivoDiligencia())
+            	{
+					if(obj.getNome().trim().equals(arquivoDiligencia.getNome().trim()))
+					{
+						throw new Exception("Este arquivo já foi adicionado na lista.");
+					}
+				}
+            }
+            	
+            if(this.getListaArquivoDiligencia().size() >= 5)
+            {
+            	throw new Exception("Só é permitido anexar 5 arquivos por audiência.");
+            }
+            
+            this.getListaArquivoDiligencia().add(arquivoDiligencia);
+            
+            this.setActiveTab("Documentação");            
+        } 
+		catch (Exception e)
+		{
+        	FacesMessage message = new FacesMessage(e.getMessage());
+	        message.setSeverity(FacesMessage.SEVERITY_ERROR);
+	        FacesContext.getCurrentInstance().addMessage(null, message);
+        }
+		
+		return null;
+	}
+	
+	public void excluirArquivo()
+	{
+		for (int i = 0; i < this.getListaArquivoDiligencia().size(); i++)
+		{
+			if(this.getListaArquivoDiligencia().get(i).getNome().equals(this.getNomeArquivo()))
+			this.getListaArquivoDiligencia().remove(i);
+		}
+		
+	}
+	
+	private String getFileName(Part part) {
+		for (String cd : part.getHeader("content-disposition").split(";")) {
+			if (cd.trim().startsWith("filename")) {
+				return cd.substring(cd.indexOf('=') + 1).trim()
+						.replace("\"", "");
+			}
+		}
+		return null;
+	}
+	
+	public void validar(Part value) throws Exception
+	{
+        Part arquivo = (Part) value;
+
+        if (arquivo.getSize() > (20*1024*1024)) {
+            throw new Exception("Arquivo muito grande. O arquivo deve ter o tamanho máximo de 20mb.");
+        }
+
+        if (!"application/pdf".equals(arquivo.getContentType())
+        		&& !"application/msword".equals(arquivo.getContentType())
+        		&& !"image/jpg".equals(arquivo.getContentType())
+        		&& !"image/jpeg".equals(arquivo.getContentType())
+        		&& !"image/png".equals(arquivo.getContentType())) {
+            throw new Exception("Tipo de arquivo inválido, O arquivo deve ser dos tipos: .PDF, .DOC, .JPG, .JPEG, .PNG.");
+        }
+    }
+	
+	public String cancelarAudiencia()
+	{
+		this.preparaPesquisar();
+		return "audiencia";
+	}
 
 	public List<TpDiligencia> getListaTpDiligencia() {
 		return listaTpDiligencia;
@@ -277,4 +527,53 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 	public void setListaTpContratacao(List<TpContratacao> listaTpContratacao) {
 		this.listaTpContratacao = listaTpContratacao;
 	}
+
+	public JSFUtil getUtil() {
+		return util;
+	}
+
+	public void setUtil(JSFUtil util) {
+		this.util = util;
+	}
+
+	public List<ArquivoDiligencia> getListaArquivoDiligencia() {
+		return listaArquivoDiligencia;
+	}
+
+	public void setListaArquivoDiligencia(List<ArquivoDiligencia> listaArquivoDiligencia) {
+		this.listaArquivoDiligencia = listaArquivoDiligencia;
+	}
+
+	public ArquivoDiligencia getArquivoDiligencia() {
+		return arquivoDiligencia;
+	}
+
+	public void setArquivoDiligencia(ArquivoDiligencia arquivoDiligencia) {
+		this.arquivoDiligencia = arquivoDiligencia;
+	}
+
+	public Part getFile() {
+		return file;
+	}
+
+	public void setFile(Part file) {
+		this.file = file;
+	}
+
+	public String getNomeArquivo() {
+		return nomeArquivo;
+	}
+
+	public void setNomeArquivo(String nomeArquivo) {
+		this.nomeArquivo = nomeArquivo;
+	}
+
+	public String getActiveTab() {
+		return activeTab;
+	}
+
+	public void setActiveTab(String activeTab) {
+		this.activeTab = activeTab;
+	}
+
 }

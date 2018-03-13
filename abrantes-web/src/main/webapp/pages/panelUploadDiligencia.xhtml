@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+					  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:a4j="http://richfaces.org/a4j"
+				xmlns:rich="http://richfaces.org/rich"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:t="http://myfaces.apache.org/tomahawk"
+				xmlns:mj="http://mojarra.dev.java.net/mojarra_ext">
+	<h:form enctype="multipart/form-data" id="formFile">
+        <div class="form-group">
+            <label for="inputEmail3" class="col-sm-2 control-label"><h:outputLabel value="Arquivo" for="arquivo" /></label>
+            <div class="col-sm-2">
+              <h:inputFile id="arquivo" value="#{diligenciaBean.file}" label="Arquivo"/>
+            </div>
+         </div>
+              
+         <br/>      
+       	 
+       	 <div class="form-group">
+           	<label for="inputEmail3" class="col-sm-2 control-label">
+           		<h:commandButton value="Adicionar" action="#{diligenciaBean.importar}" render="formFile" />   
+           	</label>        
+         </div>
+       	 
+       	 <br/>
+   	</h:form>
+       
+   	<h:form> 
+       	 <div class="box-content">
+			<h:panelGroup id="panTblFile">
+				<rich:dataTable id="tblFile" 
+							 value="#{crudBean.listaArquivoDiligencia}" 
+						       var="file" rows="10"
+						styleClass="table table-bordered table-striped dataTable"
+					onrowmouseover="this.style.cursor='default';this.style.backgroundColor='#FFF8DC';" 
+				  	 onrowmouseout="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
+						  rendered="#{not empty crudBean.listaArquivoDiligencia}">						     
+					<f:facet name="header">
+						<rich:columnGroup>
+							<rich:column style="width: 90%; text-align: center;">
+								Nome
+							</rich:column>
+							<rich:column style="width: 5%; text-align: center;" />
+							<rich:column style="width: 5%; text-align: center;" />
+						</rich:columnGroup>
+					</f:facet>
+					<rich:column style="text-align: left;">
+						<h:outputText value="#{file.nome}" />
+					</rich:column>
+					
+					<rich:column style="text-align: center; vertical-align: middle;">
+						<h:commandButton image="../images/file.png" style="border:none; width: 18px; height: 18px;" title="DOWNLOAD DO ARQUIVO" action="#{crudBean.downloadArquivo}">
+							<f:setPropertyActionListener target="#{crudBean.arquivoDiligencia}" value="#{file}" />
+						</h:commandButton>
+					</rich:column>
+					
+					<rich:column style="text-align: center; vertical-align: middle;">
+						<a4j:commandButton image="../images/inativar.png" style="border:none; width: 18px; height: 18px;" title="EXCLUIR" action="#{crudBean.excluirArquivo}" render="panTblFile" onclick="if (!confirm('Deseja realmente excluir este arquivo?')) return false">
+							<f:setPropertyActionListener target="#{crudBean.nomeArquivo}" value="#{file.nome}" />
+						</a4j:commandButton>
+					</rich:column>
+				</rich:dataTable>
+			</h:panelGroup>
+		</div>
+	</h:form>
+ 
+</ui:composition>

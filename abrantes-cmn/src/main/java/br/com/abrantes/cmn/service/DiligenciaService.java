@@ -27,6 +27,8 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
 	
 	public static final int JOIN_ESTADO = 4;
 	
+	public static final int JOIN_ARQUIVO = 8;
+	
 	private JSFUtil util = new JSFUtil();
 		
 	@SuppressWarnings("rawtypes")
@@ -141,6 +143,11 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
 		if ((join & JOIN_USUARIO_ALT) != 0)
 	    {
 	         criteria.createAlias("usuarioAlt", "usuarioAlt", JoinType.LEFT_OUTER_JOIN);
+	    }
+		
+		if ((join & JOIN_ARQUIVO) != 0)
+	    {
+			criteria.createAlias("listArquivo", "listArquivo", JoinType.LEFT_OUTER_JOIN);
 	    }
 		
 		return criteria;
