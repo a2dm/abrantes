@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition	xmlns="http://www.w3.org/1999/xhtml"
+			    xmlns:ui="http://java.sun.com/jsf/facelets"
+			    xmlns:h="http://java.sun.com/jsf/html"
+				xmlns:f="http://java.sun.com/jsf/core"
+				xmlns:a4j="http://richfaces.org/a4j"
+				xmlns:rich="http://richfaces.org/rich"
+				xmlns:p="http://primefaces.org/ui"
+				xmlns:mj="http://mojarra.dev.java.net/mojarra_ext"
+				xmlns:t="http://myfaces.apache.org/tomahawk"
+				template="crud_template_diligencia.xhtml">
+	
+	<ui:param name="crudBean" value="#{diligenciaBean}" />	
+	
+	<ui:define name="saveStateObjectsDefined">
+		<t:saveState value="#{crudBean.nomeArquivo}" />
+		<t:saveState value="#{crudBean.listaArquivoDiligencia}" />
+	</ui:define>
+	
+	<ui:define name="content">
+		<h:panelGroup id="frm">
+			<f:subview id="viewEdicao">
+				<div class="form-horizontal">
+					
+					<rich:tabPanel switchType="client" activeItem="Documentação">
+
+		                <rich:tab name="Documentação">
+		                	<ui:include src="panelUploadDiligencia.xhtml" />
+		                </rich:tab>
+		                
+	                </rich:tabPanel>
+				
+				</div>
+			</f:subview>
+		</h:panelGroup>
+	</ui:define>
+
+
+	<ui:define name="buttonItens" style="height:100%; width:100%;">				
+		<h:form>
+			<h:commandButton id="salvar" styleClass="btn btn-primary" value="Salvar (S)" accesskey="S" action="#{crudBean.alterarAnexo}"/>
+			<h:outputText value=" "/>
+			<h:commandButton id="cancelar" styleClass="btn btn-primary" value="Cancelar (C)" accesskey="C" action="#{crudBean.cancelarDiligencia}" />
+		</h:form>
+	</ui:define>
+
+	
+</ui:composition>

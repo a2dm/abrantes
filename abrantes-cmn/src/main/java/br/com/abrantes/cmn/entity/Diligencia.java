@@ -3,6 +3,7 @@ package br.com.abrantes.cmn.entity;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -18,9 +19,8 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Proxy;
 
 /**
@@ -119,9 +119,11 @@ public class Diligencia implements Serializable {
 	private String flgAtivo;
 	
 	@OneToMany(mappedBy="diligencia", fetch = FetchType.LAZY)
-    @Cascade(CascadeType.ALL)
     private List<ArquivoDiligencia> listArquivo;
 
+	@Transient
+	private HashMap<String, Object> filtroMap;
+	
 	public BigInteger getIdDiligencia() {
 		return idDiligencia;
 	}
@@ -328,5 +330,13 @@ public class Diligencia implements Serializable {
 
 	public void setListArquivo(List<ArquivoDiligencia> listArquivo) {
 		this.listArquivo = listArquivo;
+	}
+
+	public HashMap<String, Object> getFiltroMap() {
+		return filtroMap;
+	}
+
+	public void setFiltroMap(HashMap<String, Object> filtroMap) {
+		this.filtroMap = filtroMap;
 	}
 }

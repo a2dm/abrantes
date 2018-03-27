@@ -50,8 +50,8 @@ public class ArquivoDiligencia implements Serializable {
 	@JoinColumn(name = "id_diligencia", insertable = false, updatable = false)
 	private Diligencia diligencia;
 
-	@Column(name = "id_audiencia")
-	private BigInteger idAudiencia;
+	@Column(name = "id_diligencia")
+	private BigInteger idDiligencia;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name = "dat_cadastro")
@@ -129,12 +129,12 @@ public class ArquivoDiligencia implements Serializable {
 		this.diligencia = diligencia;
 	}
 
-	public BigInteger getIdAudiencia() {
-		return idAudiencia;
+	public BigInteger getIdDiligencia() {
+		return idDiligencia;
 	}
 
-	public void setIdAudiencia(BigInteger idAudiencia) {
-		this.idAudiencia = idAudiencia;
+	public void setIdDiligencia(BigInteger idDiligencia) {
+		this.idDiligencia = idDiligencia;
 	}
 
 	public Date getDatCadastro() {

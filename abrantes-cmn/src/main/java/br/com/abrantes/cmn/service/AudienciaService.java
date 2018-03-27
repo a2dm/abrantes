@@ -1,17 +1,18 @@
 package br.com.abrantes.cmn.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.faces.context.FacesContext;
-import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Criteria;
 import org.hibernate.FlushMode;
@@ -61,13 +62,13 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 		adicionarFiltro("datAudiencia", RestritorHb.RESTRITOR_EQ,"datAudiencia");
 		adicionarFiltro("vara", RestritorHb.RESTRITOR_LIKE, "vara");
 		adicionarFiltro("processo", RestritorHb.RESTRITOR_EQ, "processo");
-		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");		
+		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");
+		adicionarFiltro("listArquivo.flgAtivo", RestritorHb.RESTRITOR_EQ, "filtroMap.flgArquivoAtivo");
 	}
 	
 	@Override
 	public Audiencia inserir(Session sessao, Audiencia vo) throws Exception
 	{
-		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 		List<ArquivoAudiencia> lista = new ArrayList<ArquivoAudiencia>();
 		lista.addAll(vo.getListArquivo());
 		
@@ -85,27 +86,134 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 				obj.setIdUsuarioCad(vo.getIdUsuarioCad());
 				obj.setDatCadastro(new Date());
 				obj.setFlgAtivo("S");
-				obj.setDesArquivo(request.getRequestedSessionId() + String.valueOf(Math.random() * 10000) + obj.getNome());
+				obj.setDesArquivo(obj.getNome());
 				
 				ArquivoAudienciaService.getInstancia().inserir(sessao, obj);
-				this.salvarFileDiretorio(obj);
 			}
 		}
 		
 		return vo;
 	}
 	
-	public void salvarFileDiretorio(ArquivoAudiencia file) throws Exception
+	public Audiencia alterarAnexo(Audiencia vo) throws Exception
 	{
+		Session sessao = HibernateUtil.getSession();
+		sessao.setFlushMode(FlushMode.COMMIT);
+		Transaction tx = sessao.beginTransaction();
+		try
+		{
+			vo = alterarAnexo(sessao, vo);
+			tx.commit();
+			return vo;
+		}
+		catch (Exception e)
+		{
+			tx.rollback();
+			throw e;
+		}
+		finally
+		{
+			sessao.close();
+		}
+	}
+	
+	public Audiencia alterarAnexo(Session sessao, Audiencia vo) throws Exception 
+	{
+		List<ArquivoAudiencia> lista = new ArrayList<ArquivoAudiencia>();
+		lista.addAll(vo.getListArquivo());
+
+		ArquivoAudiencia arquivoAudiencia = new ArquivoAudiencia();
+		arquivoAudiencia.setIdAudiencia(vo.getIdAudiencia());
+		
+		List<ArquivoAudiencia> listArquivos = ArquivoAudienciaService.getInstancia().pesquisar(sessao, arquivoAudiencia, 0);
+		
+		if (listArquivos != null && listArquivos.size() > 0) 
+		{
+			String so = String.valueOf(System.getProperty("os.name"));
+			String barra = "\\";
+			
+			if (so.equals("Linux")) {
+				barra = "/";
+			}
+			
+			Parametro parametro = new Parametro();
+			parametro.setDescricao("FILES_AUDIENCIA");
+			parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
+			
+			for (ArquivoAudiencia element : listArquivos) {
+				element.setFlgAtivo("N");
+				element.setIdUsuarioAlt(element.getIdUsuarioAlt());
+				element.setDatAlteracao(new Date(0));
+				
+				ArquivoAudienciaService.getInstancia().alterar(sessao, element);
+				this.excluirFileDiretorio(element, parametro, barra, lista);
+			}
+		}
+		
+		if (lista != null)
+		{
+			for (ArquivoAudiencia obj : lista)
+			{
+				obj.setIdAudiencia(vo.getIdAudiencia());
+				obj.setIdUsuarioCad(vo.getIdUsuarioCad());
+				obj.setDatCadastro(new Date());
+				obj.setFlgAtivo("S");
+				obj.setDesArquivo(obj.getNome());
+				
+				ArquivoAudienciaService.getInstancia().inserir(sessao, obj);
+				this.salvarFileDiretorio(sessao, obj);
+			}
+		}
+		return vo;
+	}
+	
+	private void excluirFileDiretorio(ArquivoAudiencia element, Parametro parametro, String barra, List<ArquivoAudiencia> lista) throws Exception {
+		boolean achouElement = false;
+		
+		for (ArquivoAudiencia obj : lista ) {
+			if (element.getNome().trim().equalsIgnoreCase(obj.getNome().trim())) {
+				achouElement = true;
+				break;
+			}
+		}
+		
+		if (!achouElement) {
+			Files.deleteIfExists(Paths.get(parametro.getValor() + barra + element.getIdAudiencia() + barra + element.getNome()));
+		}
+	}
+
+	public void salvarFileDiretorio(Session sessao, ArquivoAudiencia file) throws Exception
+	{
+		String so = String.valueOf(System.getProperty("os.name"));
+		String barra = "\\";
+		
+		if (so.equals("Linux")) {
+			barra = "/";
+		}
+		
 		Parametro parametro = new Parametro();
 		parametro.setDescricao("FILES_AUDIENCIA");
-		parametro = ParametroService.getInstancia().get(parametro, 0);
+		parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
 		
-		String nomeArquivoSaida = parametro.getValor() + file.getDesArquivo();
-
-        try (InputStream is = file.getFile().getInputStream();
-             OutputStream out = new FileOutputStream(nomeArquivoSaida)) 
+		File folder = new File(parametro.getValor() + barra +file.getIdAudiencia());
+		String nomeArquivoSaida = folder.getPath() + barra + file.getNome();
+		
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+		
+		InputStream inputStream = null;
+		
+		if (file.getFile() == null) {
+			inputStream = new FileInputStream(nomeArquivoSaida);
+		} else {
+			inputStream = file.getFile().getInputStream();
+		}
+		
+        try (InputStream is = inputStream;
+             OutputStream out = new FileOutputStream(nomeArquivoSaida))
         {
+        	
             int read = 0;
             byte[] bytes = new byte[20*1024*1024];
             

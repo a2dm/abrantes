@@ -62,32 +62,166 @@
                     </div>
             	</div>
 			</f:subview>
-		</h:panelGroup>	
+		</h:panelGroup>
+		
+		<h:panelGroup id="panelGroupDeEdicao" style="height:100%;width:100%;" rendered="#{crudBean.updating}">
+			<f:subview id="viewEdicao">
+				<div class="form-horizontal">
+					
+					<rich:tabPanel switchType="client" activeItem="Documentação">
+						 <rich:tab header="Dados Gerais">
+						 
+						 	<h:panelGroup id="panelGroupDeAlterar" style="height:100%;width:100%;" rendered="#{crudBean.editing}">
+								
+								<div class="box-body" style="padding: 1px;">
+				                	<div class="form-group">
+				                   	   <label for="inputEmail3" class="col-sm-2 control-label">Código</label>
+					                   <div class="col-sm-6" style="padding-top: 5px;">
+					                     <h:outputText value="#{crudBean.entity.idDiligencia}"/>
+					                   </div>
+				                 	</div>
+			                 	</div>	
+									
+							</h:panelGroup>
+						 
+							<div class="box-body" style="padding: 1px;">
+								<div class="form-group">
+									<label for="inputEmail3" class="col-sm-2 control-label">Código Externo</label>
+									<div class="col-sm-2">
+				                   		<h:inputText value="#{crudBean.entity.idExt}" styleClass="form-control" maxlength="200" id="codigoExterno">
+						                 	<f:passThroughAttribute name="placeholder" value="Código Externo"/>
+						                 </h:inputText>
+					                 </div>
+			                   </div>
+			                   
+								<div class="form-group">
+			                   	   <label for="inputEmail3" class="col-sm-2 control-label">Data do Prazo Máximo</label>
+				                   <div class="col-sm-2" style="width: 13% !important;">
+				                	  <rich:calendar value="#{crudBean.entity.datPrazoMaximo}" buttonClass="glyphicon glyphicon-calendar" inputSize="9" buttonIcon="../images/calendar.png"  datePattern="dd/MM/yyyy" inputClass="form-control" showWeeksBar="false" enableManualInput="true" oninputkeypress="return formataData(event,this);" maxlength="10"/>
+				                   </div>
+			                 	</div>
+			                 	
+			                 	<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Nº do Processo</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.processo}" styleClass="form-control" maxlength="200" id="processo">
+					                 	<f:passThroughAttribute name="placeholder" value="Nº do Processo"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+							
+			                	<div class="form-group">
+			                   	   <label for="inputEmail3" class="col-sm-2 control-label">Vara</label>
+				                   <div class="col-sm-6">
+				                     <h:inputText value="#{crudBean.entity.vara}" styleClass="form-control" size="100" maxlength="250" id="nome">
+					                     <f:passThroughAttribute name="placeholder" value="Vara"/>
+				                     </h:inputText>
+				                   </div>
+			                 	</div>
+			                 	
+			                 	<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Requerido</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.requerido}" styleClass="form-control" size="100" maxlength="200" id="requerido">
+					                 	<f:passThroughAttribute name="placeholder" value="Requerido"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Requerente</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.requerente}" styleClass="form-control" size="100" maxlength="200" id="requerente">
+					                 	<f:passThroughAttribute name="placeholder" value="Requerente"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+			                 	
+			                 	<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Cidade</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.cidade}" styleClass="form-control" maxlength="200" id="cidade">
+					                 	<f:passThroughAttribute name="placeholder" value="Cidade"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Tipo</label>
+					               <div class="col-sm-4">
+					               	<h:selectOneMenu value="#{crudBean.entity.idTpDiligencia}" styleClass="form-control" id="tpDiligencia">
+										<t:selectItems var="o" itemValue="#{o.idTpDiligencia}" itemLabel="#{o.desTpDiligencia}" value="#{crudBean.listaTpDiligencia}" />
+									</h:selectOneMenu>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Origem do Processo</label>
+					               <div class="col-sm-4">
+					               	<h:selectOneMenu value="#{crudBean.entity.idOrigemProcesso}" styleClass="form-control" id="origemProcesso">
+										<t:selectItems var="o" itemValue="#{o.idOrigemProcesso}" itemLabel="#{o.desOrigemProcesso}" value="#{crudBean.listaOrigemProcesso}" />
+									</h:selectOneMenu>
+					               </div>
+					            </div>
+			                 </div>
+		                </rich:tab>
+		                	                	                
+		                <rich:tab header="Contratação">
+		                	<div class="box-body" style="padding: 1px;">
+								<div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Tipo de Contratação</label>
+					               <div class="col-sm-4">
+					               	<h:selectOneMenu value="#{crudBean.entity.idTpContratacao}" styleClass="form-control" id="tipoContratacao">
+										<t:selectItems var="o" itemValue="#{o.idTpContratacao}" itemLabel="#{o.desTpContratacao}" value="#{crudBean.listaTpContratacao}" />
+									</h:selectOneMenu>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Contratante</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.contratante}" styleClass="form-control" maxlength="200" id="contratante">
+					                 	<f:passThroughAttribute name="placeholder" value="Contratante"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Advogado Contratado</label>
+					               <div class="col-sm-6">
+					                 <h:inputText value="#{crudBean.entity.contratado}" styleClass="form-control" size="100" maxlength="200" id="contratado">
+					                 	<f:passThroughAttribute name="placeholder" value="Advogado Contratado"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Valor Contratado</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.valorContratado}" styleClass="form-control" size="100" maxlength="200" id="valorContratado">
+					                 	<f:passThroughAttribute name="placeholder" value="Valor Contratado"/>
+					                 </h:inputText>
+					               </div>
+					            </div>
+					            
+					            <div class="form-group">
+					               <label for="inputEmail3" class="col-sm-2 control-label">Valor Recebido</label>
+					               <div class="col-sm-2">
+					                 <h:inputText value="#{crudBean.entity.valorRecebido}" styleClass="form-control" maxlength="200" id="valorRecebido">
+					                 	<f:passThroughAttribute name="placeholder" value="Valor Recebido"/>
+					                 </h:inputText>
+					               </div>
+					            </div>				            
+					            
+			                 </div>
+		                </rich:tab>
+	                </rich:tabPanel>
+				
+				</div>
+			</f:subview>
+		</h:panelGroup>
 					
 	</ui:define>
-	
-	
-	<ui:define name="buttonItens" style="height:100%; width:100%;">
-		<!-- Painel dos botoes de pesquisa -->
-		<h:panelGroup rendered="#{crudBean.searching}">
-			<a4j:commandButton id="pesquisar" styleClass="btn btn-primary" value="Pesquisar (P)" accesskey="P" actionListener="#{crudBean.pesquisar}" render="tblResult"/>
-			<h:outputText value=" "/>
-			<h:commandButton id="preparaInserir" styleClass="btn btn-primary" value="Novo (N)" accesskey="N" action="#{crudBean.preparaCadastrarDiligencia}"/>			
-		</h:panelGroup>
-		<rich:popupPanel id="grafico" height="85" width="350">
-		</rich:popupPanel>	
-		
-		<!-- Painel dos botoes de edicao -->
-		<h:panelGroup rendered="#{crudBean.updating || crudBean.viewing}">			
-			<a4j:commandButton id="inserir" styleClass="btn btn-primary" value="Gravar (G)" accesskey="G" actionListener="#{crudBean.inserir}" rendered="#{crudBean.inserting}" render="formulario, panelTitle"/>
-			<h:outputText value=" "/>
-			<a4j:commandButton id="alterar" styleClass="btn btn-primary" value="Alterar (A)" accesskey="A" actionListener="#{crudBean.alterar}" rendered="#{crudBean.editing}" render="formulario, panelTitle"/>
-			<h:outputText value=" "/>
-			<a4j:commandButton id="cancelar" styleClass="btn btn-primary" value="Cancelar (C)" accesskey="C" actionListener="#{crudBean.cancelar}" render="formulario, panelTitle" />
-		</h:panelGroup>
-		
-	</ui:define>
-	
 	
 	<ui:define name="list">	
 		<h:panelGrid id="tblResult" layout="block" style="width: 100%; height: 100%;z" >
@@ -120,6 +254,7 @@
 								<rich:column style="width: 3%; text-align: center;" />
 								<rich:column style="width: 3%; text-align: center;" />
 								<rich:column style="width: 3%; text-align: center;" />
+								<rich:column style="width: 3%; text-align: center;" />
 							</rich:columnGroup>
 						</f:facet>
 						<rich:column style="text-align: right;">
@@ -137,6 +272,11 @@
 						<rich:column style="text-align: left;">
 							<h:outputText value="ATIVO" style="color: blue;" rendered="#{rst.flgAtivo == 'S'}"/>
 							<h:outputText value="INATIVO" style="color:red;" rendered="#{rst.flgAtivo == 'N'}"/>
+						</rich:column>
+						<rich:column style="text-align: center; vertical-align: middle;">
+							<h:commandButton image="../images/anexar.jpg" style="border:none; width: 18px; height: 18px;" title="DOCUMENTAÇÃO" action="#{crudBean.preparaAlterarDocumentacao}" rendered="#{rst.flgAtivo == 'S'}" >
+								<f:setPropertyActionListener target="#{crudBean.entity}" value="#{rst}" />
+							</h:commandButton>
 						</rich:column>
 						<rich:column style="text-align: center;">
 							<a4j:commandButton image="../images/visualizar.png" style="border:none; width: 18px; height: 18px;" title="VISUALIZAR" action="#{crudBean.visualizar}" render="formulario" oncomplete="#{rich:component('panVisualizar')}.show();">

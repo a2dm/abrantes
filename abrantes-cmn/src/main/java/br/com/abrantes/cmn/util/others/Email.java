@@ -14,7 +14,7 @@ import javax.mail.internet.MimeMessage;
 public class Email
 {
 	private static final String USER  = "contato@a2dm.com.br";
-	private static final String PASSWORD  = "socio2017empresa";
+	private static final String PASSWORD  = "mbc25mbc";
 	
 	public void enviar(String to, String assunto, String texto) throws AddressException, MessagingException 
 	{

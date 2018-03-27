@@ -1,7 +1,17 @@
 package br.com.abrantes.cmn.service;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.hibernate.Criteria;
@@ -11,7 +21,9 @@ import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.sql.JoinType;
 
+import br.com.abrantes.cmn.entity.ArquivoDiligencia;
 import br.com.abrantes.cmn.entity.Diligencia;
+import br.com.abrantes.cmn.entity.Parametro;
 import br.com.abrantes.cmn.util.A2DMHbNgc;
 import br.com.abrantes.cmn.util.HibernateUtil;
 import br.com.abrantes.cmn.util.RestritorHb;
@@ -51,7 +63,8 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
 		adicionarFiltro("datPrazoMaximo", RestritorHb.RESTRITOR_EQ,"datPrazoMaximo");
 		adicionarFiltro("vara", RestritorHb.RESTRITOR_LIKE, "vara");
 		adicionarFiltro("processo", RestritorHb.RESTRITOR_EQ, "processo");
-		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");		
+		adicionarFiltro("flgAtivo", RestritorHb.RESTRITOR_EQ, "flgAtivo");
+		adicionarFiltro("listArquivo.flgAtivo", RestritorHb.RESTRITOR_EQ, "filtroMap.flgArquivoAtivo");
 	}
 	
 	public Diligencia inativar(Diligencia vo) throws Exception
@@ -152,6 +165,138 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
 		
 		return criteria;
 	}
+	
+	public Diligencia alterarAnexo(Diligencia vo) throws Exception
+	{
+		Session sessao = HibernateUtil.getSession();
+		sessao.setFlushMode(FlushMode.COMMIT);
+		Transaction tx = sessao.beginTransaction();
+		try
+		{
+			vo = alterarAnexo(sessao, vo);
+			tx.commit();
+			return vo;
+		}
+		catch (Exception e)
+		{
+			tx.rollback();
+			throw e;
+		}
+		finally
+		{
+			sessao.close();
+		}
+	}
+	
+	public Diligencia alterarAnexo(Session sessao, Diligencia vo) throws Exception 
+	{
+		List<ArquivoDiligencia> lista = new ArrayList<ArquivoDiligencia>();
+		if (vo.getListArquivo() != null && vo.getListArquivo().size() > 0) {
+			lista.addAll(vo.getListArquivo());
+		}
+
+		ArquivoDiligencia arquivoDiligencia = new ArquivoDiligencia();
+		arquivoDiligencia.setIdDiligencia(vo.getIdDiligencia());
+		
+		List<ArquivoDiligencia> listArquivos = ArquivoDiligenciaService.getInstancia().pesquisar(sessao, arquivoDiligencia, 0);
+		
+		if (listArquivos != null && listArquivos.size() > 0) 
+		{
+			String so = String.valueOf(System.getProperty("os.name"));
+			String barra = "\\";
+			
+			if (so.equals("Linux")) {
+				barra = "/";
+			}
+			
+			Parametro parametro = new Parametro();
+			parametro.setDescricao("FILES_DILIGENCIA");
+			parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
+			
+			for (ArquivoDiligencia element : listArquivos) {
+				element.setFlgAtivo("N");
+				element.setIdUsuarioAlt(element.getIdUsuarioAlt());
+				element.setDatAlteracao(new Date(0));
+				
+				ArquivoDiligenciaService.getInstancia().alterar(sessao, element);
+				this.excluirFileDiretorio(element, parametro, barra, lista);
+			}
+		}
+		
+		if (lista != null)
+		{
+			for (ArquivoDiligencia obj : lista)
+			{
+				obj.setIdDiligencia(vo.getIdDiligencia());
+				obj.setIdUsuarioCad(vo.getIdUsuarioCad());
+				obj.setDatCadastro(new Date());
+				obj.setFlgAtivo("S");
+				obj.setDesArquivo(obj.getNome());
+				
+				ArquivoDiligenciaService.getInstancia().inserir(sessao, obj);
+				this.salvarFileDiretorio(sessao, obj);
+			}
+		}
+		return vo;
+	}
+	
+	private void excluirFileDiretorio(ArquivoDiligencia element, Parametro parametro, String barra, List<ArquivoDiligencia> lista) throws Exception {
+		boolean achouElement = false;
+		
+		for (ArquivoDiligencia obj : lista ) {
+			if (element.getNome().trim().equalsIgnoreCase(obj.getNome().trim())) {
+				achouElement = true;
+				break;
+			}
+		}
+		
+		if (!achouElement) {
+			Files.deleteIfExists(Paths.get(parametro.getValor() + barra + element.getIdDiligencia() + barra + element.getNome()));
+		}
+	}
+	
+	public void salvarFileDiretorio(Session sessao, ArquivoDiligencia file) throws Exception
+	{
+		String so = String.valueOf(System.getProperty("os.name"));
+		String barra = "\\";
+		
+		if (so.equals("Linux")) {
+			barra = "/";
+		}
+		
+		Parametro parametro = new Parametro();
+		parametro.setDescricao("FILES_DILIGENCIA");
+		parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
+		
+		File folder = new File(parametro.getValor() + barra +file.getIdDiligencia());
+		String nomeArquivoSaida = folder.getPath() + barra + file.getNome();
+		
+		if (!folder.exists()) {
+			folder.mkdir();
+		}
+		
+		InputStream inputStream = null;
+		
+		if (file.getFile() == null) {
+			inputStream = new FileInputStream(nomeArquivoSaida);
+		} else {
+			inputStream = file.getFile().getInputStream();
+		}
+		
+        try (InputStream is = inputStream;
+             OutputStream out = new FileOutputStream(nomeArquivoSaida))
+        {
+            int read = 0;
+            byte[] bytes = new byte[20*1024*1024];
+            
+            while ((read = is.read(bytes)) != -1) 
+            {
+                out.write(bytes, 0, read);
+            }
+        } catch (IOException e) {
+            throw e;
+        }
+	}	
 		
 	@Override
 	protected void setarOrdenacao(Criteria criteria, Diligencia vo, int join)

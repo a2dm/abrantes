@@ -1,10 +1,12 @@
 package br.com.abrantes.web.bean;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,7 +15,6 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.event.ActionEvent;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
@@ -64,43 +65,22 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 		super(DiligenciaService.getInstancia());
 		this.ACTION_SEARCH = "diligencia";
 		this.pageTitle = "Cadastro / Diligência";
-
-		this.setActiveTab("Documentação");
 		
 		MenuControl.ativarMenu("flgMenuCad");
 		MenuControl.ativarSubMenu("flgMenuCadDil");
 	}
 	
-	public String preparaCadastrarDiligencia()
-	{
-		try
-		{
-			if(validarAcesso(Variaveis.ACAO_PREPARA_INSERIR))
-			{
-				setEntity(getNewEntityInstance());
-	    		setCurrentState(STATE_INSERT);
-	    		 
-	    		setDefaultInserir();
-	    		setListaInserir();
-			}
-		}
-		catch (Exception e)
-		{
-			FacesMessage message = new FacesMessage(e.getMessage());
-			message.setSeverity(FacesMessage.SEVERITY_ERROR);
-			if(e.getMessage() == null)
-				FacesContext.getCurrentInstance().addMessage("", message);
-			else
-				FacesContext.getCurrentInstance().addMessage(null, message);
-		}
-		
-		return "diligenciaCadastrar";
-   }
-	
 	public String downloadArquivo()
 	{
 		try
 		{
+			String so = String.valueOf(System.getProperty("os.name"));
+			String barra = "\\";
+			
+			if (so.equals("Linux")) {
+				barra = "/";
+			}
+			
 			Part file = this.getArquivoDiligencia().getFile();
 				
 			FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -123,7 +103,7 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 				parametro.setDescricao("FILES_DILIGENCIA");
 				parametro = ParametroService.getInstancia().get(parametro, 0);
 				
-				FileInputStream is = new FileInputStream(parametro.getValor() + this.getArquivoDiligencia().getDesArquivo());
+				FileInputStream is = new FileInputStream(parametro.getValor() + barra + this.getArquivoDiligencia().getIdDiligencia() + barra + this.getArquivoDiligencia().getNome());
 			    output.write(IOUtils.toByteArray(is));
 			}
 			     
@@ -242,31 +222,37 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 		}		
 	}
 	
-	public void inserirDiligencia(ActionEvent event) 
+	public void completarAlterarAnexo() throws Exception 
 	{
-		try
-		{
-			if(validarAcesso(Variaveis.ACAO_INSERIR))
-			{
-				validarInserir();
-				completarInserir();
-				setEntity(DiligenciaService.getInstancia().inserir(getEntity()));
-				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Registro inserido com sucesso.", null));
-				this.preparaCadastrarDiligencia();
-			}
-		}
-		catch (Exception e)
-		{
-			FacesMessage message = new FacesMessage(e.getMessage());
-			message.setSeverity(FacesMessage.SEVERITY_ERROR);
-			if(e.getMessage() == null)
-				FacesContext.getCurrentInstance().addMessage("", message);
-			else
-				FacesContext.getCurrentInstance().addMessage(null, message);
-		}
+		this.getEntity().setDatAlteracao(new Date());
+		this.getEntity().setIdUsuarioAlt(util.getUsuarioLogado().getIdUsuario());
+		this.getEntity().setListArquivo(this.getListaArquivoDiligencia());
 	}
 	
-	public String preparaAlterarDiligencia() 
+	public String alterarAnexo() 
+	{
+		try
+	      {
+	    	  if (validarAcesso(Variaveis.ACAO_ALTERAR))
+	    	  {
+	    		  completarAlterarAnexo();
+	    		  setEntity(DiligenciaService.getInstancia().alterarAnexo(getEntity()));
+	    		  FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO,"Documentação anexada com sucesso.", null));
+	    	  }
+	      }
+	      catch (Exception e)
+	      {
+	         FacesMessage message = new FacesMessage(e.getMessage());
+	         message.setSeverity(FacesMessage.SEVERITY_ERROR);
+	         if(e.getMessage() == null)
+	        	 FacesContext.getCurrentInstance().addMessage("", message);
+	         else
+	        	 FacesContext.getCurrentInstance().addMessage(null, message);
+	      }
+		return cancelarDiligencia();
+	}
+	
+	public String preparaAlterarDocumentacao() 
 	{
 		try
 		{
@@ -275,13 +261,25 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 				super.preparaAlterar();
 				Diligencia diligencia = new Diligencia();
 				diligencia.setIdDiligencia(getEntity().getIdDiligencia());
+				diligencia.setFiltroMap(new HashMap<>());
+				diligencia.getFiltroMap().put("flgArquivoAtivo", "S");
 				
 				diligencia = DiligenciaService.getInstancia().get(diligencia,DiligenciaService.JOIN_USUARIO_CAD
 						   										   	    | DiligenciaService.JOIN_USUARIO_ALT
 						   										        | DiligenciaService.JOIN_ARQUIVO);
 				
-				setEntity(diligencia);				
-				this.setListaArquivoDiligencia(diligencia.getListArquivo());
+				if (diligencia != null) {
+					if (diligencia.getListArquivo() != null && diligencia.getListArquivo().size() > 0) {
+						
+						this.setListaArquivoDiligencia(new ArrayList<>());
+						
+						for (ArquivoDiligencia element : diligencia.getListArquivo()) {
+							if (this.fileExists(element)) {
+								this.getListaArquivoDiligencia().add(element);
+							}
+						}
+					}
+				}
 			}
 		}
 	    catch (Exception e)
@@ -291,34 +289,27 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 	       FacesContext.getCurrentInstance().addMessage(null, message);
 	    }
 		
-		return "audienciaCadastrar";
+		return "diligenciaDocumentacao";
 	}
 	
-	@Override
-	public void preparaAlterar() 
-	{
-		try
-		{
-			if(validarAcesso(Variaveis.ACAO_PREPARA_ALTERAR))
-			{
-				super.preparaAlterar();
-				Diligencia diligencia = new Diligencia();
-				diligencia.setIdDiligencia(getEntity().getIdDiligencia());
-				
-				diligencia = DiligenciaService.getInstancia().get(diligencia,DiligenciaService.JOIN_USUARIO_CAD
-						   										   	  | DiligenciaService.JOIN_USUARIO_ALT);
-				
-				setEntity(diligencia);
-			}
+	private boolean fileExists(ArquivoDiligencia element) throws Exception {
+		String so = String.valueOf(System.getProperty("os.name"));
+		String barra = "\\";
+		
+		if (so.equals("Linux")) {
+			barra = "/";
 		}
-	    catch (Exception e)
-	    {
-	       FacesMessage message = new FacesMessage(e.getMessage());
-	       message.setSeverity(FacesMessage.SEVERITY_ERROR);
-	       FacesContext.getCurrentInstance().addMessage(null, message);
-	    }
+		
+		Parametro parametro = new Parametro();
+		parametro.setDescricao("FILES_DILIGENCIA");
+		parametro = ParametroService.getInstancia().get(parametro, 0);
+		
+		File folder = new File(parametro.getValor() + barra + element.getIdDiligencia());
+		String nomeArquivoSaida = folder.getPath() + barra + element.getNome();
+		
+		return new File(nomeArquivoSaida).exists();
 	}
-
+	
 	@Override
 	protected void completarAlterar() throws Exception 
 	{
@@ -448,8 +439,6 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
             }
             
             this.getListaArquivoDiligencia().add(arquivoDiligencia);
-            
-            this.setActiveTab("Documentação");            
         } 
 		catch (Exception e)
 		{
@@ -498,10 +487,10 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
         }
     }
 	
-	public String cancelarAudiencia()
+	public String cancelarDiligencia()
 	{
 		this.preparaPesquisar();
-		return "audiencia";
+		return "diligencia";
 	}
 
 	public List<TpDiligencia> getListaTpDiligencia() {

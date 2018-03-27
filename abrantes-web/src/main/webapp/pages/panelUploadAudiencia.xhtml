@@ -9,11 +9,25 @@
 				xmlns:f="http://java.sun.com/jsf/core"
 				xmlns:t="http://myfaces.apache.org/tomahawk"
 				xmlns:mj="http://mojarra.dev.java.net/mojarra_ext">
+				
 	<h:form enctype="multipart/form-data" id="formFile">
+		<h:panelGroup id="panelGroupDeAlterar" style="height:100%;width:100%;">								
+			<div class="box-body" style="padding: 1px;">
+               	<div class="form-group">
+                  	   <label for="inputEmail3" class="col-sm-2 control-label">Código</label>
+                   <div class="col-sm-6" style="padding-top: 5px;">
+                     <h:outputText value="#{crudBean.entity.idAudiencia}"/>
+                   </div>
+                	</div>
+               	</div>
+		</h:panelGroup>
+	
         <div class="form-group">
-            <label for="inputEmail3" class="col-sm-2 control-label"><h:outputLabel value="Arquivo" for="arquivo" /></label>
+            <label for="arquivo" class="col-sm-2 control-label">
+            	<h:outputLabel value="Arquivo" for="arquivo" />
+            </label>
             <div class="col-sm-2">
-              <h:inputFile id="arquivo" value="#{audienciaBean.file}" label="Arquivo"/>
+              	<h:inputFile id="arquivo" value="#{audienciaBean.file}" label="Arquivo"/>
             </div>
          </div>
               
@@ -32,12 +46,12 @@
        	 <div class="box-content">
 			<h:panelGroup id="panTblFile">
 				<rich:dataTable id="tblFile" 
-							 value="#{crudBean.listaArquivoAudiencia}" 
+							 value="#{audienciaBean.listaArquivoAudiencia}" 
 						       var="file" rows="10"
 						styleClass="table table-bordered table-striped dataTable"
 					onrowmouseover="this.style.cursor='default';this.style.backgroundColor='#FFF8DC';" 
 				  	 onrowmouseout="this.style.backgroundColor='#{a4jSkin.tableBackgroundColor}'"
-						  rendered="#{not empty crudBean.listaArquivoAudiencia}">						     
+						  rendered="#{not empty audienciaBean.listaArquivoAudiencia}">						     
 					<f:facet name="header">
 						<rich:columnGroup>
 							<rich:column style="width: 90%; text-align: center;">
@@ -52,13 +66,13 @@
 					</rich:column>
 					
 					<rich:column style="text-align: center; vertical-align: middle;">
-						<h:commandButton image="../images/file.png" style="border:none; width: 18px; height: 18px;" title="DOWNLOAD DO ARQUIVO" action="#{crudBean.downloadArquivo}">
+						<h:commandButton image="../images/file.png" style="border:none; width: 18px; height: 18px;" title="DOWNLOAD" action="#{audienciaBean.downloadArquivo}">
 							<f:setPropertyActionListener target="#{crudBean.arquivoAudiencia}" value="#{file}" />
 						</h:commandButton>
 					</rich:column>
 					
 					<rich:column style="text-align: center; vertical-align: middle;">
-						<a4j:commandButton image="../images/inativar.png" style="border:none; width: 18px; height: 18px;" title="EXCLUIR" action="#{crudBean.excluirArquivo}" render="panTblFile" onclick="if (!confirm('Deseja realmente excluir este arquivo?')) return false">
+						<a4j:commandButton image="../images/inativar.png" style="border:none; width: 18px; height: 18px;" title="EXCLUIR" action="#{audienciaBean.excluirArquivo}" render="panTblFile" onclick="if (!confirm('Deseja realmente excluir este arquivo?')) return false">
 							<f:setPropertyActionListener target="#{crudBean.nomeArquivo}" value="#{file.nome}" />
 						</a4j:commandButton>
 					</rich:column>

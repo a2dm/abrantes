@@ -3,6 +3,7 @@ package br.com.abrantes.cmn.entity;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -18,6 +19,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Proxy;
 
@@ -118,6 +120,9 @@ public class Audiencia implements Serializable {
 	
 	@OneToMany(mappedBy="audiencia", fetch = FetchType.LAZY)
     private List<ArquivoAudiencia> listArquivo;
+	
+	@Transient
+	private HashMap<String, Object> filtroMap;
 
 	public BigInteger getIdAudiencia() {
 		return idAudiencia;
@@ -327,4 +332,11 @@ public class Audiencia implements Serializable {
 		this.listArquivo = listArquivo;
 	}
 
+	public HashMap<String, Object> getFiltroMap() {
+		return filtroMap;
+	}
+
+	public void setFiltroMap(HashMap<String, Object> filtroMap) {
+		this.filtroMap = filtroMap;
+	}
 }
