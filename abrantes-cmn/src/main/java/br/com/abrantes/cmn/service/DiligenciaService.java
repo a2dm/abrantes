@@ -248,8 +248,10 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
 		}
 	}
 	
-	public void salvarFileDiretorio(Session sessao, ArquivoDiligencia file) throws Exception
+	public ArquivoDiligencia salvarFileDiretorio(Session sessao, ArquivoDiligencia file) throws Exception
 	{
+		ArquivoDiligenciaService.getInstancia().inserir(sessao, file);
+		
 		Parametro parametro = new Parametro();
 		parametro.setDescricao("FILES_DILIGENCIA");
 		parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
@@ -272,6 +274,7 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
         try (InputStream is = inputStream;
              OutputStream out = new FileOutputStream(nomeArquivoSaida))
         {
+        	
             int read = 0;
             byte[] bytes = new byte[20*1024*1024];
             
@@ -282,7 +285,8 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
         } catch (IOException e) {
             throw e;
         }
-	}	
+		return file;
+	}
 		
 	@Override
 	protected void setarOrdenacao(Criteria criteria, Diligencia vo, int join)
@@ -302,5 +306,66 @@ public class DiligenciaService extends A2DMHbNgc<Diligencia>
 	protected Map filtroPropriedade() 
 	{
 		return filtroPropriedade;
+	}
+
+	public ArquivoDiligencia salvarFileDiretorio(ArquivoDiligencia vo) throws Exception
+	{
+		Session sessao = HibernateUtil.getSession();
+		sessao.setFlushMode(FlushMode.COMMIT);
+		Transaction tx = sessao.beginTransaction();
+		try
+		{
+			vo = salvarFileDiretorio(sessao, vo);
+			tx.commit();
+			return vo;
+		}
+		catch (Exception e)
+		{
+			tx.rollback();
+			throw e;
+		}
+		finally
+		{
+			sessao.close();
+		}
+	}
+
+	public void excluirFileDiretorio(ArquivoDiligencia file) throws Exception {
+		Session sessao = HibernateUtil.getSession();
+		sessao.setFlushMode(FlushMode.COMMIT);
+		Transaction tx = sessao.beginTransaction();
+		try
+		{
+			excluirFileDiretorio(sessao, file);
+			tx.commit();
+		}
+		catch (Exception e)
+		{
+			tx.rollback();
+			throw e;
+		}
+		finally
+		{
+			sessao.close();
+		}
+	}
+	
+	public void excluirFileDiretorio(Session sessao, ArquivoDiligencia file) throws Exception 
+	{
+		ArquivoDiligencia arquivoDiligencia = new ArquivoDiligencia();
+		arquivoDiligencia.setIdArquivoDiligencia(file.getIdArquivoDiligencia());
+		arquivoDiligencia = ArquivoDiligenciaService.getInstancia().get(sessao, arquivoDiligencia, 0);
+		
+		arquivoDiligencia.setFlgAtivo("N");
+		arquivoDiligencia.setIdUsuarioAlt(file.getIdUsuarioAlt());
+		arquivoDiligencia.setDatAlteracao(new Date(0));
+		
+		ArquivoDiligenciaService.getInstancia().alterar(sessao, arquivoDiligencia);
+		
+		Parametro parametro = new Parametro();
+		parametro.setDescricao("FILES_DILIGENCIA");
+		parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
+		
+		Files.deleteIfExists(Paths.get(parametro.getValor() + File.separator + arquivoDiligencia.getIdDiligencia() + File.separator + arquivoDiligencia.getNome()));
 	}
 }

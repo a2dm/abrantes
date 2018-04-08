@@ -74,13 +74,6 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 	{
 		try
 		{
-			String so = String.valueOf(System.getProperty("os.name"));
-			String barra = "\\";
-			
-			if (so.equals("Linux")) {
-				barra = "/";
-			}
-			
 			Part file = this.getArquivoDiligencia().getFile();
 				
 			FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -103,7 +96,7 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 				parametro.setDescricao("FILES_DILIGENCIA");
 				parametro = ParametroService.getInstancia().get(parametro, 0);
 				
-				FileInputStream is = new FileInputStream(parametro.getValor() + barra + this.getArquivoDiligencia().getIdDiligencia() + barra + this.getArquivoDiligencia().getNome());
+				FileInputStream is = new FileInputStream(parametro.getValor() + File.separator + this.getArquivoDiligencia().getIdDiligencia() + File.separator + this.getArquivoDiligencia().getNome());
 			    output.write(IOUtils.toByteArray(is));
 			}
 			     
@@ -410,10 +403,15 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 			this.validar(file);
             
             ArquivoDiligencia arquivoDiligencia = new ArquivoDiligencia();
+            arquivoDiligencia.setIdDiligencia(getEntity().getIdDiligencia());
             arquivoDiligencia.setNome(this.getFileName(file));
+            arquivoDiligencia.setDesArquivo(this.getFileName(file));
             arquivoDiligencia.setTipo(file.getContentType());
             arquivoDiligencia.setTamanho(file.getSize());
             arquivoDiligencia.setFile(file);
+            arquivoDiligencia.setIdUsuarioCad(util.getUsuarioLogado().getIdUsuario());
+            arquivoDiligencia.setDatCadastro(new Date());
+            arquivoDiligencia.setFlgAtivo("S");
             
             if(this.getListaArquivoDiligencia() != null
             		&& this.getListaArquivoDiligencia().size() > 0)
@@ -425,14 +423,17 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 						throw new Exception("Este arquivo já foi adicionado na lista.");
 					}
 				}
-            }
             	
-            if(this.getListaArquivoDiligencia().size() >= 5)
-            {
-            	throw new Exception("Só é permitido anexar 5 arquivos por audiência.");
+            	if(this.getListaArquivoDiligencia().size() >= 5)
+            	{
+            		throw new Exception("Só é permitido anexar 5 arquivos por audiência.");
+            	}
+            } else {
+            	this.setListaArquivoDiligencia(new ArrayList<>());
             }
             
             this.getListaArquivoDiligencia().add(arquivoDiligencia);
+            DiligenciaService.getInstancia().salvarFileDiretorio(arquivoDiligencia);
         } 
 		catch (Exception e)
 		{
@@ -444,14 +445,19 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 		return null;
 	}
 	
-	public void excluirArquivo()
+	public void excluirArquivo() throws Exception
 	{
+		ArquivoDiligencia arquivoDiligencia = new ArquivoDiligencia();
+		
 		for (int i = 0; i < this.getListaArquivoDiligencia().size(); i++)
 		{
-			if(this.getListaArquivoDiligencia().get(i).getNome().equals(this.getNomeArquivo()))
-			this.getListaArquivoDiligencia().remove(i);
+			if (this.getListaArquivoDiligencia().get(i).getNome().equals(this.getNomeArquivo())) {
+				arquivoDiligencia = this.getListaArquivoDiligencia().get(i);
+				this.getListaArquivoDiligencia().remove(i);
+			}
 		}
 		
+		DiligenciaService.getInstancia().excluirFileDiretorio(arquivoDiligencia);
 	}
 	
 	private String getFileName(Part part) {
