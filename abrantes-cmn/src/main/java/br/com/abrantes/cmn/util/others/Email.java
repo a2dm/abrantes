@@ -13,20 +13,19 @@ import javax.mail.internet.MimeMessage;
 
 public class Email
 {
-	private static final String USER  = "contato@a2dm.com.br";
-	private static final String PASSWORD  = "mbc25mbc";
+	private static final String USER  = "sistema@siscob.srv.br";
+	private static final String PASSWORD  = "abrantes@2018";
 	
 	public void enviar(String to, String assunto, String texto) throws AddressException, MessagingException 
 	{
-		String host = "smtp.a2dm.com.br";
+		String host = "email-ssl.com.br";
 		
 		Properties props = new Properties();
 		props.put("mail.smtp.host", host);
-		props.put("mail.smtp.socketFactory.port", "587");
-		props.put("mail.smtp.socketFactory.class",
-				"javax.net.ssl.SSLSocketFactory");
+		props.put("mail.smtp.socketFactory.port", "465");
+		props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 		props.put("mail.smtp.auth", "true");
-		props.put("mail.smtp.port", "587");
+		props.put("mail.smtp.port", "465");
  
 		Session session = Session.getDefaultInstance(props,
 			new javax.mail.Authenticator()

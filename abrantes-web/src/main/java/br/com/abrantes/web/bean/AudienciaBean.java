@@ -213,19 +213,12 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 	}
 
 	private boolean fileExists(ArquivoAudiencia element) throws Exception {
-		String so = String.valueOf(System.getProperty("os.name"));
-		String barra = "\\";
-		
-		if (so.equals("Linux")) {
-			barra = "/";
-		}
-		
 		Parametro parametro = new Parametro();
 		parametro.setDescricao("FILES_AUDIENCIA");
 		parametro = ParametroService.getInstancia().get(parametro, 0);
 		
-		File folder = new File(parametro.getValor() + barra + element.getIdAudiencia());
-		String nomeArquivoSaida = folder.getPath() + barra + element.getNome();
+		File folder = new File(parametro.getValor() + File.separator + element.getIdAudiencia());
+		String nomeArquivoSaida = folder.getPath() + File.separator + element.getNome();
 		
 		return new File(nomeArquivoSaida).exists();
 	}
@@ -316,13 +309,6 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 	{
 		try
 		{
-			String so = String.valueOf(System.getProperty("os.name"));
-			String barra = "\\";
-			
-			if (so.equals("Linux")) {
-				barra = "/";
-			}
-			
 			Part file = this.getArquivoAudiencia().getFile();
 				
 			FacesContext facesContext = FacesContext.getCurrentInstance();
@@ -345,7 +331,7 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 				parametro.setDescricao("FILES_AUDIENCIA");
 				parametro = ParametroService.getInstancia().get(parametro, 0);
 				
-				FileInputStream is = new FileInputStream(parametro.getValor() + barra + this.getArquivoAudiencia().getIdAudiencia() + barra + this.getArquivoAudiencia().getNome());
+				FileInputStream is = new FileInputStream(parametro.getValor() + File.separator + this.getArquivoAudiencia().getIdAudiencia() + File.separator + this.getArquivoAudiencia().getNome());
 			    output.write(IOUtils.toByteArray(is));
 			}
 			     
@@ -416,10 +402,15 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 			this.validar(file);
             
             ArquivoAudiencia arquivoAudiencia = new ArquivoAudiencia();
+            arquivoAudiencia.setIdAudiencia(getEntity().getIdAudiencia());
             arquivoAudiencia.setNome(this.getFileName(file));
+            arquivoAudiencia.setDesArquivo(this.getFileName(file));
             arquivoAudiencia.setTipo(file.getContentType());
             arquivoAudiencia.setTamanho(file.getSize());
             arquivoAudiencia.setFile(file);
+            arquivoAudiencia.setIdUsuarioCad(util.getUsuarioLogado().getIdUsuario());
+            arquivoAudiencia.setDatCadastro(new Date());
+            arquivoAudiencia.setFlgAtivo("S");
             
             if(this.getListaArquivoAudiencia() != null
             		&& this.getListaArquivoAudiencia().size() > 0)
@@ -441,6 +432,7 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
             }
             
             this.getListaArquivoAudiencia().add(arquivoAudiencia);
+            AudienciaService.getInstancia().salvarFileDiretorio(arquivoAudiencia);
         } 
 		catch (Exception e)
 		{
@@ -452,21 +444,25 @@ public class AudienciaBean extends AbstractBean<Audiencia, AudienciaService>
 		return null;
 	}
 	
-	public void excluirArquivo()
+	public void excluirArquivo() throws Exception
 	{
+		ArquivoAudiencia arquivoAudiencia = new ArquivoAudiencia();
+		
 		for (int i = 0; i < this.getListaArquivoAudiencia().size(); i++)
 		{
-			if(this.getListaArquivoAudiencia().get(i).getNome().equals(this.getNomeArquivo()))
-			this.getListaArquivoAudiencia().remove(i);
+			if (this.getListaArquivoAudiencia().get(i).getNome().equals(this.getNomeArquivo())) {
+				arquivoAudiencia = this.getListaArquivoAudiencia().get(i);
+				this.getListaArquivoAudiencia().remove(i);
+			}
 		}
 		
+		AudienciaService.getInstancia().excluirFileDiretorio(arquivoAudiencia);
 	}
 	
 	private String getFileName(Part part) {
 		for (String cd : part.getHeader("content-disposition").split(";")) {
 			if (cd.trim().startsWith("filename")) {
-				return cd.substring(cd.indexOf('=') + 1).trim()
-						.replace("\"", "");
+				return cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
 			}
 		}
 		return null;

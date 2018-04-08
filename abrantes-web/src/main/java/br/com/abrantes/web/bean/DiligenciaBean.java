@@ -293,19 +293,13 @@ public class DiligenciaBean extends AbstractBean<Diligencia, DiligenciaService>
 	}
 	
 	private boolean fileExists(ArquivoDiligencia element) throws Exception {
-		String so = String.valueOf(System.getProperty("os.name"));
-		String barra = "\\";
-		
-		if (so.equals("Linux")) {
-			barra = "/";
-		}
 		
 		Parametro parametro = new Parametro();
 		parametro.setDescricao("FILES_DILIGENCIA");
 		parametro = ParametroService.getInstancia().get(parametro, 0);
 		
-		File folder = new File(parametro.getValor() + barra + element.getIdDiligencia());
-		String nomeArquivoSaida = folder.getPath() + barra + element.getNome();
+		File folder = new File(parametro.getValor() + File.separator + element.getIdDiligencia());
+		String nomeArquivoSaida = folder.getPath() + File.separator + element.getNome();
 		
 		return new File(nomeArquivoSaida).exists();
 	}

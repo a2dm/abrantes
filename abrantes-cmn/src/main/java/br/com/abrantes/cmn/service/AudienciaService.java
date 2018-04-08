@@ -70,7 +70,9 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 	public Audiencia inserir(Session sessao, Audiencia vo) throws Exception
 	{
 		List<ArquivoAudiencia> lista = new ArrayList<ArquivoAudiencia>();
-		lista.addAll(vo.getListArquivo());
+		if (vo.getListArquivo() != null && vo.getListArquivo().size() > 0) {
+			lista.addAll(vo.getListArquivo());
+		}
 		
 		vo.setListArquivo(null);
 		
@@ -129,13 +131,6 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 		
 		if (listArquivos != null && listArquivos.size() > 0) 
 		{
-			String so = String.valueOf(System.getProperty("os.name"));
-			String barra = "\\";
-			
-			if (so.equals("Linux")) {
-				barra = "/";
-			}
-			
 			Parametro parametro = new Parametro();
 			parametro.setDescricao("FILES_AUDIENCIA");
 			parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
@@ -146,7 +141,7 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 				element.setDatAlteracao(new Date(0));
 				
 				ArquivoAudienciaService.getInstancia().alterar(sessao, element);
-				this.excluirFileDiretorio(element, parametro, barra, lista);
+				this.excluirFileDiretorio(element, parametro, File.separator, lista);
 			}
 		}
 		
@@ -181,22 +176,78 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
 			Files.deleteIfExists(Paths.get(parametro.getValor() + barra + element.getIdAudiencia() + barra + element.getNome()));
 		}
 	}
-
-	public void salvarFileDiretorio(Session sessao, ArquivoAudiencia file) throws Exception
+	
+	public ArquivoAudiencia salvarFileDiretorio(ArquivoAudiencia vo) throws Exception
 	{
-		String so = String.valueOf(System.getProperty("os.name"));
-		String barra = "\\";
-		
-		if (so.equals("Linux")) {
-			barra = "/";
+		Session sessao = HibernateUtil.getSession();
+		sessao.setFlushMode(FlushMode.COMMIT);
+		Transaction tx = sessao.beginTransaction();
+		try
+		{
+			vo = salvarFileDiretorio(sessao, vo);
+			tx.commit();
+			return vo;
 		}
+		catch (Exception e)
+		{
+			tx.rollback();
+			throw e;
+		}
+		finally
+		{
+			sessao.close();
+		}
+	}
+	
+	public void excluirFileDiretorio(ArquivoAudiencia file) throws Exception {
+		Session sessao = HibernateUtil.getSession();
+		sessao.setFlushMode(FlushMode.COMMIT);
+		Transaction tx = sessao.beginTransaction();
+		try
+		{
+			excluirFileDiretorio(sessao, file);
+			tx.commit();
+		}
+		catch (Exception e)
+		{
+			tx.rollback();
+			throw e;
+		}
+		finally
+		{
+			sessao.close();
+		}
+	}
+	
+	public void excluirFileDiretorio(Session sessao, ArquivoAudiencia file) throws Exception 
+	{
+		ArquivoAudiencia arquivoAudiencia = new ArquivoAudiencia();
+		arquivoAudiencia.setIdArquivoAudiencia(file.getIdArquivoAudiencia());
+		arquivoAudiencia = ArquivoAudienciaService.getInstancia().get(sessao, arquivoAudiencia, 0);
+		
+		arquivoAudiencia.setFlgAtivo("N");
+		arquivoAudiencia.setIdUsuarioAlt(file.getIdUsuarioAlt());
+		arquivoAudiencia.setDatAlteracao(new Date(0));
+		
+		ArquivoAudienciaService.getInstancia().alterar(sessao, arquivoAudiencia);
 		
 		Parametro parametro = new Parametro();
 		parametro.setDescricao("FILES_AUDIENCIA");
 		parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
 		
-		File folder = new File(parametro.getValor() + barra +file.getIdAudiencia());
-		String nomeArquivoSaida = folder.getPath() + barra + file.getNome();
+		Files.deleteIfExists(Paths.get(parametro.getValor() + File.separator + arquivoAudiencia.getIdAudiencia() + File.separator + arquivoAudiencia.getNome()));
+	}
+
+	public ArquivoAudiencia salvarFileDiretorio(Session sessao, ArquivoAudiencia file) throws Exception
+	{
+		ArquivoAudienciaService.getInstancia().inserir(sessao, file);
+		
+		Parametro parametro = new Parametro();
+		parametro.setDescricao("FILES_AUDIENCIA");
+		parametro = ParametroService.getInstancia().get(sessao, parametro, 0);
+		
+		File folder = new File(parametro.getValor() + File.separator + file.getIdAudiencia());
+		String nomeArquivoSaida = folder.getPath() + File.separator + file.getNome();
 		
 		if (!folder.exists()) {
 			folder.mkdir();
@@ -224,6 +275,7 @@ public class AudienciaService extends A2DMHbNgc<Audiencia>
         } catch (IOException e) {
             throw e;
         }
+		return file;
 	}	
 	
 	public Audiencia inativar(Audiencia vo) throws Exception
